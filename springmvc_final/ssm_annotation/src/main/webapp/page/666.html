@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>666</title>
+    <style>
+        p{
+            border: #908989 1px solid;
+            margin-bottom: 30px;
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            line-height: 100px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <aaa v-for="(item,i) in items" :item="item" :i="i" @del="del" v-model="">
+    </aaa>
+</div>
+
+</body>
+<script src="../js/vue.js"></script>
+<script>
+    Vue.component('aaa',{
+        props:['item','i'],
+        methods:{
+            del(str){
+                this.$emit('del',str);
+            }
+        },
+        data(){
+          return{
+              user:{name:'张三',age:'30'},
+          }
+        },
+        template:`
+        <div>
+        <header>
+        <slot name="header" :user="user">{{user.name+':'+item}}<button @click="del(i)">删除</button></slot>
+</header>
+        <main>
+        <slot name="default"></slot>
+</main>
+        <footer>
+        <slot name="footer"></slot>
+</footer>
+        </div>
+       `
+    })
+    new Vue({
+       el:'#app' ,
+        data:{
+           fs:30,
+            user:{name:'lisi',age:'18'},
+            person:{name:'wangwu'},
+            items:['今晚打老虎','老虎不在家','猴子做大王'],
+        },
+        methods:{
+           del(i){
+               this.items.splice(i,1);
+           }
+        },
+
+    });
+</script>
+</html>

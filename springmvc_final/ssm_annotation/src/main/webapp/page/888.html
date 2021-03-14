@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>888</title>
+</head>
+<body>
+<div id="app">
+    <div>
+        <form>
+            用户名:<input type="text" autocomplete="false" v-model="username">
+            密码  :<input type="text" autocomplete="false" v-model="password" >
+            <input type="button" value="登录" @click="login">
+        </form>
+    </div>
+    <input type="button" value="post无参数测试" @click="login3">
+    <input type="button" value="post参数测试" @click="login4">
+    <input type="button" value="时间测试" @click="test1">
+</div>
+</body>
+<script src="../js/vue.js"></script>
+<script src="../js/axios.js"></script>
+<script>
+    new Vue({
+        el:'#app',
+        data(){
+
+        },
+        data:{
+            current:1,
+            pageSize:5,
+            username:'',
+            password:'',
+            message:{'code':10086,'msg':'登录失败'},
+        },
+        methods:{
+            login(){
+                let u = {username:this.username,password:this.password};
+                axios
+                    .post(`/ssm/user/login`,u)
+                    .then(response=>{
+                        this.message = response.data;
+                        alert(this.message.code+','+this.message.message);
+                    }).catch((error)=>{
+                        alert(error);
+                })
+            },
+            login1(){
+                axios
+                    .post(`/ssm/user/login2`)
+                    .then(response=>{
+                        this.message = response.data;
+                        alert(this.message.code+','+this.message.message);
+                    }).catch((error)=>{
+                    alert(error);
+                })
+            },
+            login3(){
+                axios.post(`/ssm/user/all/${this.current}/${this.pageSize}`)
+                    .then(response=>{
+                        let datas = response.data.records;
+                        let str = '';
+                        for (let msg of datas) {
+                            str+=Object.values(msg);
+                        }
+                        alert(str);
+                    }).catch(error=>{
+                        alert(error);
+                })
+            },
+            login4(){
+                let user = {username:'张'};
+                axios.post(`/ssm/user/like/${this.current}/${this.pageSize}`,user)
+                    .then(response=>{
+                        let datas = response.data.records;
+                        let str = '';
+                        for (let msg of datas) {
+                            str+=Object.values(msg);
+                        }
+                        alert(str);
+                    }).catch(error=>{
+                    alert(error);
+                })
+            },
+            test1(){
+                axios.post(`/ssm/user/br`,{name:"张三",date:new Date()})
+                    .then(response=>{
+                        let datas = response.data;
+                        alert(datas.name+","+datas.date);
+                    }).catch(error=>{
+                    alert(error);
+                })
+            }
+        }
+    });
+</script>
+</html>

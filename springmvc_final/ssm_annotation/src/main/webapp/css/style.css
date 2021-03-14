@@ -1,0 +1,28 @@
+
+/*#p1{*/
+/*    text-indent: 1em;*/
+/*    height: 100px;*/
+/*    background: pink;*/
+/*    !*text-align: center;*!*/
+/*    line-height: 100px;*/
+/*}*/
+#d2{
+    background: yellow;
+    /*text-align: center;*/
+    height: 200px;
+}
+#d2>#d21{
+    border: 1px solid;
+    text-align: center;
+    width: 10%;
+    text-decoration: none;
+}
+a{text-decoration: none;
+}
+a:hover{
+    color: orange;
+}
+img[src$="img.png"]{
+    height: 100px;
+    width: 100px;
+}

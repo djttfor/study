@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>register</title>
+</head>
+<body>
+<form id="login_form1"  >
+    username:<label>
+    <input type="text" name="username">
+</label><br>
+    password:<label>
+    <input type="text" name="password">
+</label><br>
+    template:<label>
+    <input type="text" name="template">
+</label><br>
+    <button type="button" onclick="hehe()"  style="width: 50px;height: 50px">提交</button>
+</form>
+<hr/>
+<form id="login_form2" >
+    username:<label>
+    <input type="text" name="username">
+</label><br>
+    password:<label>
+    <input type="text" name="password">
+</label><br>
+    生日:<label>
+    <input type="text" name="birthday">
+</label><br>
+
+    <button type="button" onclick="hehe()"  style="width: 50px;height: 50px">提交</button>
+</form>
+<hr/>
+<form action="../haha/upload" enctype="multipart/form-data" method="post">
+    <input type="file" name="file" ><br><br>
+    <input type="submit" value="上传">
+</form>
+<hr/>
+<a href="../haha/download">下载</a>
+<script src="../js/jquery-3.3.1.js"></script>
+<script>
+    function formDataToJSON(obj) {
+        let params = obj.serializeArray();//需要一个JQuery对象
+        let values = {};
+        for (let item in params) {
+            values[params[item].name] = params[item].value;
+        }
+        return JSON.stringify(values);
+    }
+   function hehe() {
+        let data = formDataToJSON($("#login_form1"));
+        let template = $("input[name='template']").val();
+       $.ajax({
+               type:"post",
+               url:`../haha/toHello4?template=${template}`,
+               contentType:"application/json;charset=utf-8",
+               dataType:"json",
+               data:data,
+               success: function (result) {
+                   alert(result.username+","+result.password+","+result.birthday);
+               },
+               error:function (error) {
+                   alert("出错了")
+               }
+           }
+       )
+   }
+
+</script>
+</body>
+
+
+</html>

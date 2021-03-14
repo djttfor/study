@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    <link rel="icon" href="../images/I.ico">
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+<header style="height: 200px;background: #908989">
+    <div>
+        <select id="provinces"></select>
+        <select id="city"></select>
+    </div>
+    <div>
+        <div id="d11">
+            <input type="button" value="全选">
+            <input type="button" value="全不选">
+            <input type="button" value="反选">
+        </div>
+        <ul id="u11">
+            <li><input type="checkbox" value="1"></li>
+            <li><input type="checkbox" value="2"></li>
+            <li><input type="checkbox" value="3"></li>
+            <li><input type="checkbox" value="4"></li>
+            <li><input type="checkbox" value="5"></li>
+        </ul>
+    </div>
+</header>
+<div id="content" style="">
+    <form id="login-form" >
+    <div id="login">
+        <div id="tips-head">
+            <i class="icon-tips"></i>
+            <p>The deep dark fantasy</p>
+        </div>
+        <div id="eyebrows" >
+            <div class="login-tab" >
+                <a id="cm" href="javascript:void(0)">扫码登录</a>
+            </div>
+            <div class="login-tab" >
+                <a id="zh" href="javascript:void(0)">账户登录</a>
+            </div>
+        </div>
+        <div class="errmsg">
+            <p></p>
+        </div>
+        <div id="login-model" >
+            <div class="loginname" >
+                <label for="loginusername" class="login-label" ></label>
+                <input type="text" name="loginusername" class="logname" id="loginusername"
+                       autocomplete="false" placeholder="邮件/手机号码/账号">
+            </div>
+            <div class="loginname">
+                <label for="loginpassword" class=" password-label" ></label>
+                <input type="password"  class="logname" id="loginpassword"
+                       autocomplete="false" placeholder="密码">
+                <input type="text" name="loginpassword" id="realpwd" hidden>
+            </div>
+            <div id="losspwd">
+                <a href="#">忘记密码</a>
+            </div>
+        </div>
+        <div id="erweima" hidden>
+            <span class="erweima"></span>
+            <div>请使用微信扫描二维码</div>
+        </div>
+        <div id="submit">
+            <a class="submit"  href="javascript:void(0)">登&nbsp&nbsp录</a>
+        </div>
+        <div class="last-tip">
+            <div>
+                <span class="qq-icon"></span>
+                <a href="#">QQ</a>
+                <span class="weixin-icon"></span>
+                <a href="#">微信</a>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+<div class="bg" ></div>
+<footer style="text-align: center">
+    <ul>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+        <li><a href="">今晚打老虎&nbsp|</a></li>
+    </ul>
+    <div class="copyright">
+        Copyright&nbsp;©&nbsp;2004-2021&nbsp;&nbsp;DJ.com&nbsp;版权所有
+    </div>
+</footer>
+</body>
+<script src="../js/jquery-3.3.1.min.js"></script>
+<!--<script src="../js/l.js"></script>-->
+<script src="../js/lquery.js"></script>
+
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+<form id="login_form1"  action="../haha/login" method="post" >
+    username:<label>
+    <input type="text" name="username">
+</label><br>
+    password:<label>
+    <input type="text" name="password">
+</label><br>
+    记住密码<input type="checkbox" name="remember"> <button type="submit" style="width: 50px;height: 20px">提交</button>
+</form>
+<script src="../js/jquery-3.3.1.js"></script>
+<script>
+    $(function () {
+        $.ajax({
+                type:"post",
+                url:"../haha/rp",
+                contentType:"application/json;charset=utf-8",
+                dataType:"json",
+                data:"",
+                success: function (result) {
+                    if(result!==null){
+                        //alert(result.username+","+result.password+","+result.remember);
+                        $("input[name='username']").val(result.username);
+                        $("input[name='password']").val(result.password);
+                        $("input[name='remember']").prop('checked',result.remember);
+                    }
+                },
+                error:function (error) {
+                    //alert("出错了")
+                }
+            }
+        )
+
+    })
+
+</script>
+</body>
+</html>

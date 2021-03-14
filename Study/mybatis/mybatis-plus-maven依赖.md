@@ -1,0 +1,63 @@
+```xml
+<!--mybatis-plus-->
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus</artifactId>
+</dependency>
+<!--log4j2-->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-slf4j-impl</artifactId>
+</dependency>
+<!--junit5-->
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter-engine</artifactId>
+    <scope>test</scope>
+</dependency>
+<!--spring-->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+</dependency>
+ <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+  <!--mysql驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+  <!--druid连接池-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+        </dependency>
+  <!--版本-->
+<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <log4j2.version>2.13.3</log4j2.version>
+        <spring.version>5.2.5.RELEASE</spring.version>
+        <druid.version>1.1.23</druid.version>
+        <mysql.version>5.1.32</mysql.version>
+<!--        <mybatis.version>3.5.5</mybatis.version>-->
+<!--        <mybatis-spring>2.0.6</mybatis-spring>-->
+        <mybatis-plus>3.4.2</mybatis-plus>
+        <my.generator.version>1.0.0</my.generator.version>
+        <junit5.version>5.2.0</junit5.version>
+        <servlet.version>3.1.0</servlet.version>
+        <aspectj.version>1.9.6</aspectj.version>
+        <fastjson.version>1.2.73</fastjson.version>
+        <tomcat.version>8.5</tomcat.version>
+        <commons-fileupload>1.3.1</commons-fileupload>
+        <jsr250-api.version>1.0</jsr250-api.version>
+    </properties>
+```
+

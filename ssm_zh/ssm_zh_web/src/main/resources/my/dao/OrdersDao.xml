@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="my.dao.OrdersDao">
+      <resultMap id="allOrder" type="Orders">
+          <id property="id" column="oid"/>
+          <result property="orderNumber" column="order_number"/>
+          <result property="orderTime" column="order_time"/>
+          <result property="peopleCount" column="people_count"/>
+          <result property="orderDesc" column="order_desc"/>
+          <result property="payType" column="pay_type"/>
+          <result property="orderStatus" column="order_status"/>
+          <association property="product" javaType="Product">
+              <id property="pid" column="id"/>
+              <result property="productNumber" column="product_number"/>
+              <result property="productName" column="product_name"/>
+              <result property="cityName" column="city_name"/>
+              <result property="departureTime" column="departure_time"/>
+              <result property="productPrice" column="product_price"/>
+              <result property="productDesc" column="product_desc"/>
+              <result property="productStatus" column="product_status"/>
+          </association>
+      </resultMap>
+
+    <resultMap id="orderById" type="orders">
+        <id property="id" column="oid"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="orderTime" column="order_time"/>
+        <result property="peopleCount" column="people_count"/>
+        <result property="orderDesc" column="order_desc"/>
+        <result property="payType" column="pay_type"/>
+        <result property="orderStatus" column="order_status"/>
+        <association property="product" javaType="Product">
+            <id property="pid" column="pid"/>
+            <result property="productNumber" column="product_number"/>
+            <result property="productName" column="product_name"/>
+            <result property="cityName" column="city_name"/>
+            <result property="departureTime" column="departure_time"/>
+            <result property="productPrice" column="product_price"/>
+            <result property="productDesc" column="product_desc"/>
+            <result property="productStatus" column="product_status"/>
+        </association>
+        <association property="member" javaType="member">
+            <id property="id" column="mid"/>
+            <result property="name" column="m_name"/>
+            <result property="nickName" column="nick_name"/>
+            <result property="phoneNumber" column="phone_number"/>
+            <result property="email" column="email"/>
+        </association>
+        <collection property="travellers" ofType="traveller">
+            <id property="id" column="tid"/>
+            <result property="name" column="t_name"/>
+            <result property="sex" column="sex"/>
+            <result property="phoneNumber" column="phone_number"/>
+            <result property="credentialsType" column="credentials_type"/>
+            <result property="credentialsNumber" column="credentials_number"/>
+            <result property="travellerType" column="traveller_type"/>
+        </collection>
+    </resultMap>
+
+    <sql id="order1">o.id oid,o.order_number,o.order_time ,o.people_count,o.order_desc,o.pay_type,o.order_status,</sql>
+    <sql id="product1">p.id pid,p.product_number,p.product_name,p.city_name,p.departure_time,p.product_price,p.product_desc,p.product_status,</sql>
+    <sql id="member1">m.id mid,m.name m_name,m.nick_name,m.phone_number,m.email,</sql>
+    <sql id="traveller1">t.id tid,t.name t_name,t.sex,t.phone_number,t.credentials_type,t.credentials_number,t.traveller_type</sql>
+    <sql id="table4s">orders o,product p,member m,traveller t</sql>
+    <sql id="opmt"><include refid="order1"/><include refid="product1"/><include refid="member1"/><include refid="traveller1"/></sql>
+    <sql id="byId2">o.product_id = p.id and o.member_id = m.id and t.id in(select traveller_id from orders_traveller where orders_id = #{id}) and o.id = #{id}</sql>
+
+    <sql id="all1">p.* from orders o left join product p on o.product_id = p.id</sql>
+
+   <!--查询所有订单-->
+      <select id="findAll" resultMap="allOrder">
+           select<include refid="order1"/><include refid="all1"/>
+      </select>
+    <select id="findOrdersById" resultMap="orderById" parameterType="String" >
+          select<include refid="opmt"/> from <include refid="table4s"/>where <include refid="byId2"/>
+    </select>
+    <select id="findOrdersByProductId" resultType="Orders">
+        select id from orders where product_id = #{id}
+    </select>
+
+    <delete id="deleteOMT" >
+        delete from orders_traveller where orders_id = #{id}
+    </delete>
+    <delete id="deleteOrder">
+        delete from orders where id = #{id}
+    </delete>
+
+</mapper>

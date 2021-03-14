@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="com.ex.ssm.controller"  />
+
+    <!--视图解析器-->
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/page/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--消息转换器-->
+    <mvc:annotation-driven conversion-service="converterService">
+        <mvc:message-converters register-defaults="true">
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes" value="application/json"/>
+                <property name="fastJsonConfig" ref="fastJsonConfig"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+        <property name="charset" value="UTF-8" />
+    </bean>
+
+    <!-- 配置类型转换器工厂 -->
+    <bean id="converterService"
+          class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <!-- 给工厂注入一个新的类型转换器 -->
+        <property name="converters">
+            <array>
+                <!-- 配置自定义类型转换器 -->
+                <bean class="com.ex.ssm.config.StringToDate"/>
+                <bean class="com.ex.ssm.config.DateToString"/>
+            </array>
+        </property>
+    </bean>
+
+    <!--静态资源不拦截-->
+    <mvc:resources mapping="/page/**" location="/page/"/>
+    <mvc:resources mapping="/js/**" location="/js/"/>
+    <mvc:resources mapping="/image/**" location="/image/"/>
+
+    <!--异常处理器-->
+    <bean id="exceptionHandle" class="com.ex.ssm.config.MyExceptionHandle"/>
+
+    <!--拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/haha/**"/>
+            <mvc:exclude-mapping path="/page/**"/>
+            <mvc:exclude-mapping path="/js/**"/>
+            <mvc:exclude-mapping path="/image/**"/>
+            <bean class="com.ex.ssm.interceptor.DemoInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/haha/login"/>
+            <bean class="com.ex.ssm.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+<!--        <mvc:interceptor>-->
+<!--            <mvc:mapping path="/**"/>-->
+<!--            <bean class="com.ex.ssm.interceptor.CrosInterceptor"/>-->
+<!--        </mvc:interceptor>-->
+    </mvc:interceptors>
+
+    <mvc:cors>
+        <mvc:mapping path="/**"
+        allowed-origins="*"
+        allowed-methods="POST,GET,OPTIONS,DELETE,PUT,PATCH"
+        allowed-headers="Access-Control-Allow-Headers,Authorization,X-Requested-With"
+        allow-credentials="true"/>
+    </mvc:cors>
+
+
+    <!--文件上传设置-->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--上传文件的最大大小，单位为字节 -->
+        <property name="maxUploadSize" value="17367648787"/>
+
+        <!-- 上传文件的编码 -->
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+</beans>
