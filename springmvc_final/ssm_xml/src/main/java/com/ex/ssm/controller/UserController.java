@@ -87,6 +87,6 @@ public class UserController {
         return userService.pageQuery(current,pageSize);
     }
     public void goHome9(){
-        System.out.println("所有兄弟都会来打你的，dev");
+        System.out.println("打，我自己搞，main");
     }
 }
