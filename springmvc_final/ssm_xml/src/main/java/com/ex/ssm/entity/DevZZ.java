@@ -7,10 +7,4 @@ public class DevZZ {
         System.out.println(user);
         System.out.println(account);
     }
-    public void test(){
-        Account account = new Account();
-        Account account1 = new Account();
-        System.out.println(account);
-        System.out.println(account1);
-    }
 }
