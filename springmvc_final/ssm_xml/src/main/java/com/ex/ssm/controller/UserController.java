@@ -86,4 +86,7 @@ public class UserController {
                               @PathVariable("pageSize") int pageSize){
         return userService.pageQuery(current,pageSize);
     }
+    public void goHome9(){
+        System.out.println("dev疯了，他说他要搞新master分支");
+    }
 }
