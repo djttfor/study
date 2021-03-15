@@ -72,7 +72,7 @@
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
         </dependency>
-<!--        代码生成器-->
+       <!-- 代码生成器-->
         <dependency>
             <groupId>com.ex</groupId>
             <artifactId>generator</artifactId>

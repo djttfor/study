@@ -81,16 +81,17 @@
             <groupId>com.ex</groupId>
             <artifactId>generator</artifactId>
         </dependency>
-        <!--servlet3.0-->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
         <!--tomcat源码-->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>Tomcat8.5</artifactId>
         </dependency>
+        <!--servlet3.0-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+
         <!--文件上传-->
         <dependency>
             <groupId>commons-fileupload</groupId>
