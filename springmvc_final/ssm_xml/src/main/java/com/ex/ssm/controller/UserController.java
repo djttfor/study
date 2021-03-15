@@ -87,6 +87,7 @@ public class UserController {
         return userService.pageQuery(current,pageSize);
     }
     public void goHome9(){
+        System.out.println("dev提交");
         System.out.println("main提交");
     }
 }
