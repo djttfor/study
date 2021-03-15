@@ -5,9 +5,19 @@
 <a href="${pageContext.request.contextPath}/user/home?pass=456&name=123&pass=789">goHome</a><br>
 <a href="${pageContext.request.contextPath}/user/home2?pass=456&pass=789">goHome2</a><br>
 <form action="${pageContext.request.contextPath}/user/home2" method="post">
-    <input type="checkbox" name="aihao" value="1">学习
-    <input type="checkbox" name="aihao" value="2">学大习
-    <input type="checkbox" name="aihao" value="3">学小习
+    <input type="checkbox" name="name" value="jimmy">学习
+    <input type="checkbox" name="age" value="21">学大习
+    <input type="date" name="birthday"><br>
+    <input type="checkbox" name="demo.name" value="asss">Demo.name
+    <input type="checkbox" name="demo.pass" value="123">Demo.pass
+    <input type="checkbox" name="userList[0].id" value="11">list.user.1
+    <input type="checkbox" name="userList[0].username" value="123">list.user.1
+    <input type="checkbox" name="userList[1].id" value="11">list.user.2
+    <input type="checkbox" name="userList[1].username" value="123">list.user.2
+    <input type="checkbox" name="map['aaa']" value="bbb">map1
+    <input type="checkbox" name="map['ccc']" value="ddd">map2
+    <input type="checkbox" name="userMap['aaa'].id" value="123">map3
+    <input type="checkbox" name="userMap['aaa'].username" value="ddd">map4
     <input type="submit" value="goHome">
 </form>
 <form id="login">

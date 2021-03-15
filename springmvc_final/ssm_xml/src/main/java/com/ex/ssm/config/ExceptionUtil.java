@@ -14,5 +14,15 @@ public class ExceptionUtil {
         t.printStackTrace(pw);
         return sw.toString();
     }
+    public static Throwable getRealException(Throwable t){//获取最里层的异常
+        while (null != t){
+            Throwable t1 = t.getCause();
+            if(null == t1){
+                return t;
+            }
+            t = t1;
+        }
+        return null;
+    }
 
 }

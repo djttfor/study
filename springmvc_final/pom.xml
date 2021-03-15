@@ -91,12 +91,6 @@
                 <version>${mybatis-plus}</version>
             </dependency>
 
-            <!--自定义的代码生成器-->
-            <dependency>
-                <groupId>com.ex</groupId>
-                <artifactId>generator</artifactId>
-                <version>${my.generator.version}</version>
-            </dependency>
             <!--junit5-->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -152,6 +146,12 @@
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>Tomcat8.5</artifactId>
                 <version>${tomcat.version}</version>
+            </dependency>
+            <!--自定义的代码生成器-->
+            <dependency>
+                <groupId>com.ex</groupId>
+                <artifactId>generator</artifactId>
+                <version>${my.generator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

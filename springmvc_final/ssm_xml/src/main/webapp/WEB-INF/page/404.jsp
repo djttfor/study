@@ -11,8 +11,10 @@
     <title>404</title>
 </head>
 <body>
-<h2>错误信息</h2>
-异常信息:${errMessage}<br/>
-栈信息:${stackInfo}
+<div>
+    <div style="text-align: center"><h2>错误信息</h2></div>
+    <div><p style="color: pink">${stackInfo}</p></div>
+</div>
+
 </body>
 </html>

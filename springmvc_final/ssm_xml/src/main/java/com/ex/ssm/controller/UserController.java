@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ex.ssm.entity.Demo;
 import com.ex.ssm.entity.Message;
 import com.ex.ssm.entity.User;
+import com.ex.ssm.entity.Vo;
 import com.ex.ssm.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping("/home")
+    @PostMapping("/home")
     public String goHome(Demo demo, HttpServletRequest request, HttpServletResponse response){
         System.out.println("传递的参数："+demo.getName()+","+demo.getPass());
         System.out.println(request.getRemoteHost());
@@ -44,13 +45,8 @@ public class UserController {
         return "home";
     }
     @PostMapping("/home2")
-    public String goHome2(@RequestBody List<String> list, HttpServletRequest request){
-        System.out.println("传递的参数："+list);
-        System.out.println(request.getRemoteHost());
-        // request.setAttribute("message","传递的参数："+name+","+b);
-        HttpSession session = request.getSession();
-        session.setAttribute("message","传递的参数："+list);
-        return "home";
+    public void goHome2( Vo vo){
+        System.out.println("传递的参数："+vo);
     }
 
     @PostMapping("/home3")
