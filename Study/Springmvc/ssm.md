@@ -713,7 +713,12 @@ druid.maxOpenPreparedStatements=20
     <mvc:annotation-driven conversion-service="converterService">
         <mvc:message-converters register-defaults="true">
             <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
-                <property name="supportedMediaTypes" value="application/json"/>
+                <property name="supportedMediaTypes" >
+                    <list>
+                        <value>application/json</value>
+                        <value>application/x-www-form-urlencoded</value>
+                    </list>
+                </property>
                 <property name="fastJsonConfig" ref="fastJsonConfig"/>
             </bean>
         </mvc:message-converters>
@@ -821,6 +826,62 @@ druid.maxOpenPreparedStatements=20
     </filter-mapping>
 
 </web-app>
+```
+
+### 4. Date转换器
+
+需在spring-mvc.xml中配置才生效
+
+```java
+public class DateToString implements Converter<Date,String > {
+    @Override
+    public String convert(Date source) {
+        DateFormat dateFormat;
+        if(!ObjectUtils.isEmpty(source)){
+            dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            return dateFormat.format(source);
+        }
+        return null;
+    }
+}
+public class StringToDate implements Converter<String, Date> {
+    private static final Logger logger = LoggerFactory.getLogger(StringToDate.class);
+    @Override
+    public Date convert(String source) {
+        SimpleDateFormat simpleDateFormat ;
+        if(!StringUtils.isEmpty(source)){
+            simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                return simpleDateFormat.parse(source);
+            } catch (ParseException e) {
+                logger.info("这个值不能转为日期,Value:"+source,e);
+            }
+        }
+        return null;
+    }
+}
+
+```
+
+### 5. 异常处理器
+
+在spring-mvc.xml中注入即可
+
+```java
+public class MyExceptionHandle implements HandlerExceptionResolver {
+
+    @Override
+    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        ModelAndView mv = new ModelAndView();
+
+        Throwable realException = ExceptionUtil.getRealException(ex);
+
+        mv.addObject("stackInfo",ExceptionUtil.getStackTrace(realException));
+
+        mv.setViewName("404");
+        return mv;
+    }
+}
 ```
 
 ##  整合JUnit5
