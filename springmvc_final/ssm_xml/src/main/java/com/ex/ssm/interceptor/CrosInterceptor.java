@@ -11,7 +11,7 @@ public class CrosInterceptor implements HandlerInterceptor {
 
         response.setHeader("Access-Control-Allow-Origin", "*");
 
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With,X-Token");
 
         response.setHeader("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
 

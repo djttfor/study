@@ -54,3 +54,55 @@ mysql> SELECT * FROM table LIMIT 5; //检索前 5 个记录行
 //换句话说，LIMIT n 等价于 LIMIT 0,n。
 ```
 
+### 3. 函数的使用
+
+```mysql
+#生成0-1之间的小数
+RAND()*10 
+#返回小于x的整数
+floor(x)
+#存储过程的创建
+delimiter $$$
+create procedure zqtest2()
+begin
+    declare i int default 0;
+    declare s int default 0;
+    set i=0;
+    set s = 0;
+    start transaction;
+    while i<10 do
+    set s=floor(RAND()*1000);
+insert into product(product_name, image, price, sale_price, type_id,
+                    type_name, flag, create_time, update_time, create_user)
+                    values ('衣服','1',s,s*0.9,5,'服装',1,now(),now(),10086);
+            set i=i+1;
+        end while;
+    commit;
+end
+$$$
+delimiter ;
+#存储过程的调用
+call zqtest2();
+
+#函数的创建
+delimiter $$
+create function batch_insert(n int) returns int
+begin
+    declare r int default 0;
+    declare i int default 0;
+    declare s int default 0;
+    set s = 0;
+    while i<n do
+            set s=floor(RAND()*1000);
+            insert into product(product_name, image, price, sale_price, type_id,
+                                type_name, flag, create_time, update_time, create_user)
+            values ('球鞋','2',s,s*0.9,5,'鞋类',2,now(),now(),10087);
+            set i=i+1;
+        end while;
+    return r;
+end $$
+
+#函数的调用
+select batch_insert(20);
+```
+

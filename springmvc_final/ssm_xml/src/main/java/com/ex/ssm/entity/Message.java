@@ -9,7 +9,7 @@ public class Message implements Serializable {
 
     public Message() {
         this.code = 0;
-        this.message = "默认";
+        this.message = "用户名或密码错误";
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.ex.ssm.controller;
 
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ex.ssm.entity.Demo;
 import com.ex.ssm.entity.Message;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -86,8 +89,38 @@ public class UserController {
                               @PathVariable("pageSize") int pageSize){
         return userService.pageQuery(current,pageSize);
     }
-    public void goHome9(){
-        System.out.println("dev提交");
-        System.out.println("main提交");
+    @PostMapping("/home9")
+    @ResponseBody
+    public List<String> goHome9(@RequestBody List<String> strs){
+        log.info("从前台拿到的数据：{}",strs);
+        return strs;
+    }
+    @PostMapping("/home10")
+    @ResponseBody
+    public List<User> goHome10(@RequestBody List<User> users){
+        log.info("从前台拿到的数据：{}",users);
+        return users;
+    }
+    @PostMapping("/home11")
+    @ResponseBody
+    public Message goHome11(@RequestBody User user){
+        Message message = new Message();
+        Optional.ofNullable(user)
+                .filter(t-> (t.getUsername()!=null&&t.getPassword()!=null))
+                .ifPresent(u->{
+                    User one = userService.getOne(Wrappers.lambdaQuery(User.class)
+                            .eq(User::getUsername, u.getUsername())
+                            .eq(User::getPassword, u.getPassword()));
+                    Optional.ofNullable(one).ifPresent(o->{
+                        message.setCode(1);
+                        message.setMessage("登录成功");
+                    });
+                });
+        return message;
+    }
+    @PostMapping("/home12")
+    public String goHome12(User user){
+        log.info("从前台拿到的数据：{}",user);
+        return "404";
     }
 }

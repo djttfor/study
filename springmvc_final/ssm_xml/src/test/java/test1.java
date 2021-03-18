@@ -1,8 +1,10 @@
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ex.ssm.entity.Product;
 import com.ex.ssm.entity.User;
 import com.ex.ssm.mapper.UserMapper;
 import com.ex.ssm.service.AccountService;
+import com.ex.ssm.service.ProductService;
 import com.ex.ssm.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,20 +24,21 @@ public class test1 {
     private static final Logger log = LoggerFactory.getLogger(test1.class);
     @Autowired
     UserMapper userMapper;
-
+    @Autowired
+    ProductService productService;
     @Autowired
     UserService userService;
     @Autowired
     AccountService accountService;
     @Test
     public void test1(){
-        Page<User> page = new Page<>(2,6);
-        Page<User> userPage = userMapper.selectPage(page, Wrappers.emptyWrapper());
-        List<User> records = userPage.getRecords();
-        System.out.println("首次查询");
-        for (User record : records) {
+        Page<Product> page = new Page<>(1,10);
+        Page<Product> productPage = productService.page(page);
+        List<Product> records = productPage.getRecords();
+        for (Product record : records) {
             System.out.println(record);
         }
+
     }
     @Test
     public void test2(){

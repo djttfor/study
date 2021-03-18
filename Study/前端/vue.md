@@ -1,4 +1,4 @@
-# 杂项
+# VUE
 
 ## 1.模板字符串
 
@@ -725,7 +725,7 @@ npm install vue-router --save-dev
 npm install --save axios vue-axios
 //安装elementUI
 npm i element-ui -S
-
+//安装qs
 npm install qs --save
 ```
 
@@ -918,3 +918,71 @@ if (method.equals("OPTIONS")){
         return false;
     }
 ```
+
+## 资源打包
+
+1. 用vue-cl拉取一个项目骨架
+2. 安装依赖
+3. 使用npm run dev 进入开发者模式
+
+此时在开发者模式中，各种修改都能看到实时效果，这些效果实际上都是有vue-cli打包并发布到node.js上的，开发完成后需要将资源手动部署到在自己的服务器上的。使用 npm run build
+
+图片等静态资源要放在static目录下，访问通过全路径URL访问，如：http://localhost:8085/static/images/1.png
+
+## 定义全局函数
+
+在stc下创建plugin文件夹，创建js文件，加入以下,然后在main.js中导入，Vue.use(你创建的文件)；
+
+```js
+export default ({
+
+  install(Vue,options) {
+    Vue.prototype.open1 = function (msg) {
+      Vue.prototype.$message({
+        showClose: true,
+        message: msg,
+        type: 'warning'
+      });
+    }
+  }
+})
+//定义全局变量
+//创建个vue文件，加入以下
+<script>
+const BASE_URL = 'http://localhost:8086/ssx/'
+export default {
+  BASE_URL
+}
+</script>
+
+//在main.js导入
+import ssx_url from '@/myConfig/iurl.vue'
+Vue.prototype.ssx_url = ssx_url;
+//使用
+this.ssx_url.BASE_URLs
+```
+
+## Vue element Admin
+
+```
+//克隆项目
+git clone git@gitee.com:panjiachen/vue-element-admin.git
+//进入项目目录
+npm install
+//不行就搞下面
+npm i -g mirror-config-china --registry=https://registry.npm.taobao.org
+npm install
+//不报错就运行
+npm run dev
+```
+
+Vue admin template
+
+```
+git clone git@gitee.com:panjiachen/vue-admin-template.git
+//进入项目目录
+npm install
+//不报错就运行
+npm run dev
+```
+

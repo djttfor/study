@@ -10,10 +10,10 @@ public class DemoInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if ("OPTIONS".equals(request.getMethod())){
-            response.setStatus(200);
-            return false;
-        }
+//        if ("OPTIONS".equals(request.getMethod())){
+//            response.setStatus(200);
+//            return false;
+//        }
 
         System.out.println("<<<<<<<<<<拦截器前置处理:"+handler.getClass().getName());
         String uri = request.getRequestURI();// /ssx/user/home
