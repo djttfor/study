@@ -175,6 +175,64 @@ nginx: /usr/local/nginx
 ps -aux|grep nginx
 ```
 
+### 4.redis
+
+下载最新的6.2.1，需要安装gcc9.1.0（编译至少2小时），
+
+解压
+
+```
+tar -zxvf redis-6.2.1.tar.gz
+```
+
+编译
+
+```
+cd redis-6.2.1
+make
+```
+
+安装
+
+```
+#将redis安装到指定目录
+make PREFIX=/usr/local/redis/ install
+```
+
+前台启动
+
+```
+cd /usr/local/redis/bin
+./redis-server
+#退出
+ctrl+c
+```
+
+后台启动
+
+```
+#将redis.conf移动到/redis/bin下
+cd redis/redis-6.2.1
+mv redis.conf ../bin
+
+#开启守护模式
+vim redis.conf
+将daemonize no 改为yes
+
+指定配置文件启动
+./redis-server ./redis-conf
+```
+
+redis性能测试
+
+```
+./redis-benchmark -h localhost -p 6379 -c 50 -n 10000
+-h 指定主机
+-p 端口
+-c 并发数
+-n 连接数
+```
+
 
 
 ## 2.常见信息详解
@@ -456,18 +514,14 @@ tail -f catalina.out
 
 ### 解决tomcat在服务器上启动慢的原因
 
-在tomcat bin/ catalina.sh 中加入
+在tomcat bin/ catalina.sh 中任意地方加入
 
 ```
 JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom"
 ```
-
-
 
 ### 网络配置目录：Centos 7
 
 ```
 cd /etc/sysconfig/network-scripts
 ```
-
-## 

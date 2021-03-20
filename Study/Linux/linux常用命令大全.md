@@ -410,3 +410,14 @@ firewall-cmd --list-ports
 firewall-cmd --permanent --zone=public --add-port=3306/tcp
 ```
 
+### 32.find
+
+.按照文件名查找
+
+```
+　　　　(1)find / -name httpd.conf　　#在根目录下查找文件httpd.conf，表示在整个硬盘查找
+　　　　(2)find /etc -name httpd.conf　　#在/etc目录下文件httpd.conf
+　　　　(3)find /etc -name '*srm*'　　#使用通配符*(0或者任意多个)。表示在/etc目录下查找文件名中含有字符串‘srm’的文件
+　　　　(4)find . -name 'srm*' 　　#表示当前目录下查找文件名开头是字符串‘srm’的文件
+```
+
