@@ -1,5 +1,3 @@
-## 1.常用命令
-
 ### 1.切换到app目录 
 
 ```
@@ -374,6 +372,8 @@ kill -9 PID
 
 ### 31.防火墙设置
 
+#### centOS7
+
 查看防火墙状态
 
 ```
@@ -409,6 +409,30 @@ firewall-cmd --list-ports
 ```
 firewall-cmd --permanent --zone=public --add-port=3306/tcp
 ```
+
+#### centOS6
+
+开放端口
+
+```
+/sbin/iptables -I INPUT -p tcp --dport 80 -j ACCEPT   写入修改
+```
+
+保持修改
+
+    /etc/init.d/iptables save   保存修改
+
+重启防火墙
+
+
+    service iptables restart    重启防火墙，修改生效
+查看端口状态
+
+```
+/etc/init.d/iptables status
+```
+
+
 
 ### 32.find
 

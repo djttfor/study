@@ -929,3 +929,15 @@ Content-Type: application/json
 }
 
 ```
+
+## springmvc源码分析
+
+### 1.controller返回值处理
+
+在执行完controller代码之后，根据返回值类型选择对应的返回值处理器，springmvc默认有15种返回值处理器
+
+![image-20210322001648735](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210322001648735.png)
+
+获得对应的返回值处理器后，调用其handleReturnValue方法。
+
+在处理RequestResponseBody时，会根据请求所需的mediaType来选择对应的mediaType，如果没选择对应的mediaType就会抛出HttpMediaTypeNotAcceptableException，在springboot中，mediaType会被选择为application/json, 消息处理器没有设置fastjson就会选择jackson

@@ -1,5 +1,3 @@
-# Mybatis-Plus
-
 ## 1.启动配置（ssm注解方式）
 
 ### 1.1 maven依赖

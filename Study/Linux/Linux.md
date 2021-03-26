@@ -1,4 +1,4 @@
-# Linux
+
 
 ## 1.软件安装
 
@@ -174,6 +174,68 @@ nginx: /usr/local/nginx
 #查看nginx进程
 ps -aux|grep nginx
 ```
+
+#### 查看错误日志
+
+```
+ cat /var/log/nginx/error.log
+```
+
+#### nginx.conf
+
+```c
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    
+    keepalive_timeout  65;
+
+    upstream mytt1{
+        server 192.168.8.129:81;
+    }
+
+    server {
+        listen       80;
+        server_name  www.mytt1.com;
+
+        location / {
+            #root   html;
+	    proxy_pass http://mytt1;
+            index  index.html index.htm;
+        }
+
+    
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+    }
+
+}
+
+```
+
+#### 本体配置域名
+
+```
+如果想要访问到上面那个www.mytt1.com
+1.去买个服务器，注册一个域名。
+2.自己本地在C:\Windows\System32\drivers\etc\hosts下加入
+
+你的ip地址 www.mytt1.com
+```
+
+
 
 ### 4.redis
 

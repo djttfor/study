@@ -868,3 +868,177 @@ zpopmin与这个一样，不过是弹出并返回最小的
 4) "60"
 ```
 
+## Geospatial
+
+地理位置详解
+
+添加相关城市的经度纬度
+
+```
+127.0.0.1:6379> GEOADD china:city 116.40 39.90 beijing
+(integer) 1
+127.0.0.1:6379> GEOADD china:city 121.47 31.23 shanghai
+(integer) 1
+127.0.0.1:6379> GEOADD china:city 106.50 29.53 chongqing 114.05 22.52 shenzhen
+(integer) 2
+127.0.0.1:6379> GEOADD china:city 120.16 30.24 hangzhou 108.96 34.26 xian
+(integer) 2
+```
+
+## Hyperloglog
+
+基数统计的算法。优点：占用的内存是固定，2^64不同的元素的技术，只需要12kb的内存！
+
+网站基数统计
+
+```
+#将元素添加到HyperLogLog中
+PFadd
+#统计去重后的数量
+PFCOUNT
+#合并多个HyperLogLog
+PFMERGE
+
+127.0.0.1:6379> pfadd k1  a a b b c c 
+(integer) 1
+127.0.0.1:6379> pfadd k2  a e  b b c c 
+(integer) 1
+127.0.0.1:6379> PFCOUNT k2
+(integer) 4
+127.0.0.1:6379> PFCOUNT k1
+(integer) 3
+127.0.0.1:6379> PFMERGE k3 k1 k2
+OK
+127.0.0.1:6379> PFCOUNT k3
+(integer) 4
+```
+
+## Redis事务
+
+redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行过程中，会按照顺序执行。**一次性、顺序性、排他性**，执行一些列的命令。
+
+redis事务没有隔离级别的概念
+
+所有的命令在事务中，并没有直接被执行！只有发起命令的时候才会执行！
+
+redis单条命令是保证原子性的，但是事务不保证原子性！
+
+redis事务的使用：
+
+开启事务（multi）
+
+命令入队（。。。）
+
+执行事务（exec）
+
+放弃事务（discard）
+
+## 乐观锁
+
+监控：Watch
+
+解除监控：unwatch
+
+悲观锁：认为什么时候都会出现问题，无论做什么都会上锁
+
+乐观锁：认为什么时候都不会出问题，所以不会上锁！更新数据的时候去判断一下，在此期间是否有人修改过这个数据
+
+获取version
+
+更新的时候比较version
+
+客户端1
+
+```
+127.0.0.1:6379> MULTI
+OK
+127.0.0.1:6379(TX)> DECRby money 50
+QUEUED
+127.0.0.1:6379(TX)> set out 50
+QUEUED
+127.0.0.1:6379(TX)> exec
+(nil)
+```
+
+客户端2
+
+```
+127.0.0.1:6379> MULTI
+OK
+127.0.0.1:6379(TX)> INCRby money 80
+QUEUED
+127.0.0.1:6379(TX)> decrby out 80
+QUEUED
+127.0.0.1:6379(TX)> exec
+1) (integer) 180
+2) (integer) -80
+```
+
+## Jedis
+
+导入依赖
+
+```xml
+<dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+```
+
+远程连接超时问题
+
+```
+#确认开放安全组6379，服务器防火墙开放6379端口
+#修改redis.conf配置
+注释掉 bind ip的配置
+设置protect-mode no
+重启
+```
+
+测试代码
+
+```java
+ public static void main(String[] args) {
+        Jedis jedis = new Jedis("47.112.181.157",6379);
+        String ping = jedis.ping();
+        System.out.println(ping);
+    }
+```
+
+sorted set用法
+
+```java
+  Jedis jedis = new Jedis("47.112.181.157",6379);
+        if (jedis.exists("k1")) {
+            jedis.del("k1");
+        }
+        Map<String,Double> map = new HashMap<>();
+        map.put("a", 60D);
+        map.put("b", 70D);
+        map.put("c", 80D);
+        map.put("d", 90D);
+        jedis.zadd("k1",map);
+
+        Map<String,Double> map2 = new HashMap<>();
+        map2.put("a", 60D);
+        map2.put("e", 70D);
+        map2.put("f", 80D);
+        map2.put("d", 90D);
+        jedis.zadd("k6",map2);
+
+        ZParams zParams = new ZParams();
+        zParams.weights(1,1);
+        zParams.aggregate(ZParams.Aggregate.SUM);
+        jedis.zinterstore("k8", zParams,"k1", "k6");
+
+        Set<Tuple> k8 = jedis.zrangeWithScores("k8", 0, -1);
+        for (Tuple tuple : k8) {
+            System.out.println(tuple.getElement()+tuple.getScore());
+        }
+```
+
