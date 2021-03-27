@@ -1,30 +1,54 @@
 package com.ex.test;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ex.entity.User;
 import com.ex.mapper.UserMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
-
+@Slf4j
 @SpringBootTest
 public class Test1 {
-    Logger log = LoggerFactory.getLogger(Test1.class);
+
     @Autowired
     UserMapper userMapper;
 
+    @Autowired
+    RedisTemplate<String,Object> redisTemplate;
+
+
     @Test
-    public void test(){
-        Page<User> page = new Page<>(1,5);
-        Page<User> userPage = userMapper.selectPage(page, null);
-        List<User> records = userPage.getRecords();
+    public void test1(){
+        Page<User> objectPage = new Page<>(1, 10);
+        Page<User> res = userMapper.selectPage(objectPage,new LambdaQueryWrapper<>(User.class)
+                .likeRight(User::getPassword,"12"));
+
+        List<User> records = res.getRecords();
         for (User record : records) {
             System.out.println(record);
         }
 
     }
+    @Test
+    public void test2() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s1 = (String) redisTemplate.opsForValue().get("user");
+        User user1 = objectMapper.readValue(s1, User.class);
+        log.error("####################################################################################");
+        log.error("user1:{}",user1);
+        Object k3 = redisTemplate.opsForValue().get("k3");
+        log.error("k3:{}",k3);
+        System.out.println(k3);
+        log.error("####################################################################################");
+    }
+
+
+
 }

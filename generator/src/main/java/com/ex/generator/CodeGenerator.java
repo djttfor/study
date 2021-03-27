@@ -28,14 +28,14 @@ public class CodeGenerator {
     private static final Logger log = LoggerFactory.getLogger(CodeGenerator.class);
     public static void main(String[] args) throws Exception {
         //测试代码
-//        GeneratorConfig config = new GeneratorConfig();
-//        config.setRootPath("F:\\Java\\generator\\src\\main\\java");
-//        config.setPackageName("com.ex.test.com.ex.ssm");
-//        InputStream in = CodeGenerator.class.getClassLoader().getResourceAsStream("druid.properties");
-//        config.buildDatabaseConfig(in);
-//        config.selectTable("user","account");
-//        CodeGenerator codeGenerator = new CodeGenerator(config);
-//        codeGenerator.generate();
+        GeneratorConfig config = new GeneratorConfig();
+        config.setRootPath("F:\\Java\\generator\\src\\main\\java");
+        config.setPackageName("com.ex.test.com.ex.ssm");
+        InputStream in = CodeGenerator.class.getClassLoader().getResourceAsStream("druid.properties");
+        config.buildDatabaseConfig(in);
+        config.selectTable("product");
+        CodeGenerator codeGenerator = new CodeGenerator(config);
+        codeGenerator.generate();
 
     }
     //执行生成

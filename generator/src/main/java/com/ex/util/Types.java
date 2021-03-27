@@ -311,7 +311,7 @@ public class Types {
 
     // Prevent instantiation
     private Types() {}
-    
+
     public static String getJavaTypeName(int javaType){
         switch (javaType) {
             case Types.BIT:
@@ -345,14 +345,15 @@ public class Types {
             case Types.LONGVARBINARY:
                 return "java.lang.String";
 
+            case Types.TIMESTAMP:
             case Types.DATE:
                 return "java.sql.Date";
 
             case Types.TIME:
                 return "java.sql.Time";
 
-            case Types.TIMESTAMP:
-                return "java.sql.Timestamp";
+//            case Types.TIMESTAMP:
+//                return "java.sql.Timestamp";
 
             default:
                 return "java.lang.Object";

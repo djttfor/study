@@ -639,7 +639,15 @@ spring:
       stat-view-servlet:
         enabled: true
         url-pattern: /druid/*
-    type: com.alibaba.druid.pool.DruidDataSource
+    type: com.alibaba.druid.pool.DruidDataSource  
+#去除spring自动生成配置的报告
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure:
+            logging: info
 ```
 
 #### druid监控配置
@@ -828,3 +836,106 @@ public class MybatisPlusConfig {
 Jedis:采用的直连，多个线程操作的话，是不安全的，如果想要避免不安全，使用Jedis pool连接池！BIO
 
 lettuce：采用netty，实例可以再多个线程中进行共享，不存在线程不安全的情况！可以减少线程数量！NIO
+
+### 依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+```
+
+### yaml配置
+
+```yaml
+  redis:
+    host: 47.112.181.157
+    port: 6379
+    password: 123456
+```
+
+### 自定义RedisTemplate
+
+```java
+@Configuration
+public class RedisConfig {
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance ,
+                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+
+        template.setKeySerializer(stringRedisSerializer);
+        template.setHashKeySerializer(stringRedisSerializer);
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+        template.afterPropertiesSet();
+
+        return template;
+    }
+}
+```
+
+### 基本使用                              
+
+```java
+//判断key是否存在
+redisTemplate.countExistingKeys(Arrays.asList("mykey", "k1")//如果有一个key不存在则为0，都存在为1
+redisTemplate.hasKey("mykey")//存在为true，否则false    
+//操作string
+redisTemplate.opsForValue
+//操作hash
+redisTemplate.opsForHash                                
+//操作zset
+  Set<ZSetOperations.TypedTuple<Object>> set = new HashSet<>(Arrays.asList(
+                new DefaultTypedTuple<>("打老虎", 60d),
+                new DefaultTypedTuple<>("打飞机", 70d),
+                new DefaultTypedTuple<>("打地鼠", 90d)
+                ));
+        redisTemplate.opsForZSet().add("zz",set);
+
+        Set<ZSetOperations.TypedTuple<Object>> zz = redisTemplate.opsForZSet().rangeWithScores("zz", 0, -1);
+        for (ZSetOperations.TypedTuple<Object> typedTuple : zz) {
+            System.out.println(typedTuple.getValue()+","+typedTuple.getScore());
+        }
+ 
+                             
+```
+
+### 使用jackson序列化
+
+```java
+ public void test2() throws JsonProcessingException {
+        User user = new User();
+        user.setUsername("kim");
+        user.setPassword("123");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s = new ObjectMapper().writeValueAsString(user);
+        redisTemplate.opsForValue().set("user",s);
+        String s1 = (String) redisTemplate.opsForValue().get("user");
+        User user1 = objectMapper.readValue(s1, User.class);
+        System.out.println(user1);
+    }
+```
+
+### 哨兵模式配置
+
+```yaml
+redis:
+    host: 47.112.181.157
+    port: 6381
+    password: 123456
+    sentinel:
+      master: mymaster
+      nodes: 47.112.181.157:26379,47.112.181.157:26380,47.112.181.157:26381
+      password: 123456
+    timeout: 5000
+```
+

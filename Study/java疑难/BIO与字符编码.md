@@ -1,5 +1,3 @@
-### BIO
-
 #### 1.BIO大纲
 
 ![image-20210106102538355](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210106102538355.png)

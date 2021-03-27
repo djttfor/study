@@ -12,6 +12,7 @@
         <module>ssm_annotation</module>
         <module>servlet_demo</module>
         <module>ssm_xml</module>
+        <module>jedis_demo</module>
     </modules>
 
     <properties>

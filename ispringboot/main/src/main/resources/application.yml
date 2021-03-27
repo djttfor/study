@@ -31,9 +31,25 @@ spring:
         enabled: true
         url-pattern: /druid/*
     type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    host: 47.112.181.157
+    port: 6379
+    password: 123456
+    sentinel:
+      master: mymaster
+      nodes: 47.112.181.157:26379,47.112.181.157:26380,47.112.181.157:26381
+      password: 123456
 
 mybatis-plus:
   mapper-locations: classpath:mybatis/mapper/*.xml
   configuration:
     cache-enabled: false
   type-aliases-package: com.ex.entity
+logging:
+  level:
+    org:
+      springframework:
+        boot:
+          autoconfigure:
+            logging: info
+

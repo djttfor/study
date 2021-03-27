@@ -295,6 +295,38 @@ redis性能测试
 -n 连接数
 ```
 
+远程连接超时问题
+
+```
+#确认开放安全组6379，服务器防火墙开放6379端口
+#修改redis.conf配置
+
+注释掉 bind ip的配置，设置密码时也要注释掉
+
+设置protect-mode no
+重启
+
+#或者设置密码
+```
+
+设置密码
+
+```
+vim redis.conf
+#设置
+protect-mode yes
+#增加密码
+requirepass 123456
+
+#登录方式1
+./redis-cli -a 123456
+./redis-cli -p6379 -a 123456
+
+#登录方式2
+./redis-cli后
+auth 123456
+```
+
 
 
 ## 2.常见信息详解
