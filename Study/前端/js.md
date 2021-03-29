@@ -1,5 +1,3 @@
-# 杂项
-
 引入js文件
 
 <script src="xxx.js"></script>

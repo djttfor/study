@@ -303,36 +303,6 @@ spring:
 
 - 一但导入thymeleaf，那么视图解析器就会优先跳转到thymeleaf的模板路径，不会跳到static下的同名路径，如果需要跳转static下，请使用**"forward:/index/thy1.html"**，注意路径前的/不能少。还有thymeleaf的视图路径不要加/,因为你已经在yaml配置文件里加有/了。
 
-#### 跳转首页的方法
-
-```java
-//使用拦截器
-public class IndexInterceptor implements HandlerInterceptor {
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if ("/".equals(request.getRequestURI())){
-            request.getRequestDispatcher("/index").forward(request,response);
-            return false;
-        }
-        return true;
-    }
-}
-//注册拦截器，这里要在springboot配置文件同路径的包名下创建
-@Configuration
-public class IWebConfig implements WebMvcConfigurer {
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new IndexInterceptor())
-                .addPathPatterns("/**");
-    }
-}
-//使用forward跳转
-@GetMapping("/index")
-    public String toMain(){
-        return "forward:/index.html";
-    }
-```
-
 #### 基本使用
 
 ##### 后台传值
@@ -419,6 +389,87 @@ public class IWebConfig implements WebMvcConfigurer {
     }
 }
 ```
+
+### 404及500页面处理
+
+```java
+//或者直接在static目录下创建error文件夹添加404等页面，下面这种方式post请求会提示找不到
+@Configuration
+public class ErrorPageConfig implements ErrorPageRegistrar {
+
+    @Override
+    public void registerErrorPages(ErrorPageRegistry registry) {
+        /*1、按错误的类型显示错误的网页*/
+        /*错误类型为404，找不到网页的，默认显示404.html网页*/
+        ErrorPage e404 = new ErrorPage(HttpStatus.NOT_FOUND, "/error/404.html");
+        /*错误类型为500，表示服务器响应错误，默认显示500.html网页*/
+//        ErrorPage e500 = new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, "/static/error/index.jsp");
+//        ErrorPage e400 = new ErrorPage(HttpStatus.BAD_REQUEST, "/static/error/index.jsp");
+        registry.addErrorPages(e404);
+    }
+}
+
+```
+
+## 跳转首页的100种方法
+
+#### 1.拦截器
+
+```java
+//使用拦截器
+public class IndexInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if ("/".equals(request.getRequestURI())){
+            request.getRequestDispatcher("/index").forward(request,response);
+            return false;
+        }
+        return true;
+    }
+}
+//注册拦截器，这里要在springboot配置文件同路径的包名下创建
+@Configuration
+public class IWebConfig implements WebMvcConfigurer {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new IndexInterceptor())
+                .addPathPatterns("/**");
+    }
+}
+//使用forward跳转，static下的静态页面
+@GetMapping("/index")
+    public String toMain(){
+        return "forward:/index.html";
+}
+```
+
+#### 2.web配置文件添加视图控制器
+
+```java
+//这里要在springboot配置文件同路径的包名下创建
+@Configuration
+public class IWebConfig implements WebMvcConfigurer {   
+    //或者直接配置/跳转到指定的地方
+     @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("main");
+    }
+}
+```
+
+#### 3.controller直接跳转
+
+```java
+@Controller
+public class IndexController {
+    @RequestMapping({"/","index"})
+    public String index(){
+        return "index";
+    }
+}
+```
+
+#### 
 
 ## 整合JdbcTemplate
 
@@ -927,6 +978,8 @@ redisTemplate.opsForHash
 
 ### 哨兵模式配置
 
+代码无需改变，只改配置
+
 ```yaml
 redis:
     host: 47.112.181.157
@@ -938,4 +991,84 @@ redis:
       password: 123456
     timeout: 5000
 ```
+
+## 整合Security
+
+### 依赖
+
+```xml
+<!--springboot-security-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+```
+
+### 简介
+
+Spring Security是针对spring项目的安全框架，也是spring boot底层安全模块默认的技术选型，他可以实现强大的Web安全控制，对于安全控制，我们仅需要引入spring-boot-starter-security模块，进行少量的配置，即可实现强大的安全管理！
+
+几个常用的类：
+
+- WebSecurityConfigurerAdapter：自定义Security策略
+- AuthenticManagerBuilder：自定义认证策略
+- @EnableWebSecurity：开启WebSecurity模式
+
+spring Security的两个主要目标是认证和授权（访问控制）
+
+认证：Authentication
+
+授权：Authorization
+
+这个概念是通用的，而不是只在spring Security中存在
+
+### 加密
+
+```java
+@Test
+    public void test1(){
+        PasswordEncoder pw = new BCryptPasswordEncoder();
+        String encode = pw.encode("123");
+        log.info("加密后：{}",encode);
+        boolean matches = pw.matches("123", encode);
+        log.info("是否匹配：{}",matches?"是":"否");
+    }
+```
+
+### 基本配置
+
+#### 1.无脑配置
+
+```java
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        //授权
+        http.authorizeRequests()
+                .antMatchers("/").permitAll()
+                .antMatchers("/user/l1/**").hasRole("v1")
+                .antMatchers("/user/l2/**").hasRole("v2")
+                .antMatchers("/user/l3/**").hasRole("v3");
+        //没有登录就会跳转到登录页面
+        http.formLogin();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //应从数据库中读取添加
+        auth.inMemoryAuthentication()
+                .passwordEncoder(new BCryptPasswordEncoder()).withUser("jimmy").password(new BCryptPasswordEncoder().encode("123")).roles("v1","v2")
+                .and()
+                .passwordEncoder(new BCryptPasswordEncoder()).withUser("root").password(new BCryptPasswordEncoder().encode("123")).roles("v1","v2","v3")
+                .and()
+                .passwordEncoder(new BCryptPasswordEncoder()).withUser("laowang").password(new BCryptPasswordEncoder().encode("123")).roles("v1");
+
+    }
+}
+```
+
+
+
+
 
