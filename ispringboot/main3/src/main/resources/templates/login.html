@@ -1,12 +1,18 @@
 
 
 <!doctype html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="utf-8">
     <title>love</title>
     <link href="favicon.ico" rel="shortcut icon" />
     <link href="https://cdn.bootcss.com/twitter-bootstrap/3.4.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #rem{
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body style=" background: url(http://global.bing.com/az/hprichbg/rb/RavenWolf_EN-US4433795745_1920x1080.jpg) no-repeat center center fixed; background-size: 100%;">
 
@@ -16,15 +22,15 @@
         <div class="modal-header">
             <h4 class="modal-title text-center" id="myModalLabel">登录</h4>
         </div>
-        <form action="/user/login/process" method="post" id="form1">
+        <form action="/user/login/ass" method="post" id="form1">
         <div class="modal-body" id = "model-body">
             <div class="form-group">
-
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}" th:if="${_csrf}">
                 <input type="text" name="username"  class="form-control"placeholder="用户名" autocomplete="off">
             </div>
             <div class="form-group">
-
                 <input type="password" name="password" class="form-control" placeholder="密码" autocomplete="off">
+<!--                <div id="rem"><label for="rm">自动登录</label><input id="rm" name="remember-me" type="checkbox"></div>-->
             </div>
         </div>
         <div class="modal-footer">
@@ -42,8 +48,33 @@
 </body>
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script>
+    function formDataToJSON(obj) {
+        let params = obj.serializeArray();//需要一个JQuery对象
+        let values = {};
+        for (let item in params) {
+            values[params[item].name] = params[item].value;
+        }
+        return JSON.stringify(values);
+    }
     function isubmit(){
-        $('#form1').submit();
+       // $('#form1').submit();
+        let data = $('#form1').serialize()
+        alert(data)
+        $.ajax({
+                type:"post",
+                url:`/user/login/ass`,
+                contentType:"application/x-www-form-urlencoded;charset=utf-8",
+                dataType:"json",
+                data:data,
+                success: function (result) {
+                    alert(Object.values(result))
+                   //console.log(result)
+                },
+                error:function (error) {
+                    alert(error)
+                }
+            }
+        )
     }
 </script>
 </html>

@@ -411,7 +411,7 @@ public class ErrorPageConfig implements ErrorPageRegistrar {
 
 ```
 
-## 跳转首页的100种方法
+### 跳转首页的100种方法
 
 #### 1.拦截器
 
@@ -469,7 +469,66 @@ public class IndexController {
 }
 ```
 
-#### 
+### 注册原生Filter
+
+#### 1.编写Filter
+
+```java
+@Slf4j
+@WebFilter(urlPatterns = "/*",filterName = "iFirstFilter")
+public class FirstFilter implements Filter {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        log.info("iFirstFilter被初始化了");
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        log.info("iFirstFilter执行了");
+        chain.doFilter(request,response);
+    }
+
+    @Override
+    public void destroy() {
+        log.info("iFirstFilter被销毁了");
+    }
+}
+```
+
+#### 2.注册Filter
+
+1. ##### 方式1：在启动类使用注解扫描
+
+   ```java
+   @ServletComponentScan("com.ex.filter")
+   @SpringBootApplication
+   public class SSS {
+       public static void main(String[] args) {
+           SpringApplication.run(SSS.class,args);
+       }
+   }
+   ```
+
+2. ##### 方式2：使用@Bean注册，使用该方法时Filter类不用写@WebFilter注解
+
+   ```java
+   @Configuration
+   public class FilterConfig {
+       @Bean
+       public FilterRegistrationBean<ThirdFilter> setFilter(){
+           FilterRegistrationBean<ThirdFilter> filterBean = new FilterRegistrationBean<>();
+           filterBean.setFilter(new ThirdFilter());
+           filterBean.setName("iThirdFilter");
+           filterBean.addUrlPatterns("/*");
+           return filterBean;
+       }
+   }
+   
+   ```
+
+#### 3.@order（int）
+
+表示注册bean的属性，值越小越优先被注册，使用方式2注册时才会提现出来，方式1是按java文件顺序排序
 
 ## 整合JdbcTemplate
 
@@ -845,7 +904,8 @@ mapper配置与普通mybatis配置一致，plus的功能看官网
 @Configuration
 @MapperScan("com.ex.mapper")
 public class MybatisPlusConfig {
-    @Bean//一定要放在前面
+    //一定要放在前面
+    @Bean
     public Interceptor buildMyInterceptor(){
         return new SQLExtractLog();
     }
@@ -1042,33 +1102,635 @@ spring Security的两个主要目标是认证和授权（访问控制）
 ```java
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Resource(name = "iUserDetailServiceImpl")
+    UserDetailsService userDetailsService;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //授权
+        //配置权限控制
         http.authorizeRequests()
-                .antMatchers("/").permitAll()
+                //设置首页、静态资源、错误页面等过滤
+                .antMatchers("/","/css/**","/js/**","/error/**").permitAll()
+                .antMatchers("/user/login/**").permitAll()
+                //设置拥有角色
                 .antMatchers("/user/l1/**").hasRole("v1")
                 .antMatchers("/user/l2/**").hasRole("v2")
-                .antMatchers("/user/l3/**").hasRole("v3");
-        //没有登录就会跳转到登录页面
-        http.formLogin();
+                .antMatchers("/user/l3/**").hasRole("v3")
+                //所有的请求必须认证才能访问，必须登录
+                .anyRequest().authenticated();
+
+        //自定义登录页面
+        http.formLogin().loginPage("/user/login/page")
+        //登录处理页面
+        .loginProcessingUrl("/user/login/process")
+        //登录成功的页面
+        .successForwardUrl("/index")
+        //登录成功的页面
+        .failureForwardUrl("/user/login/fail");
+
+
+        //相当于关闭防火墙
+        http.csrf().disable();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //应从数据库中读取添加
-        auth.inMemoryAuthentication()
-                .passwordEncoder(new BCryptPasswordEncoder()).withUser("jimmy").password(new BCryptPasswordEncoder().encode("123")).roles("v1","v2")
-                .and()
-                .passwordEncoder(new BCryptPasswordEncoder()).withUser("root").password(new BCryptPasswordEncoder().encode("123")).roles("v1","v2","v3")
-                .and()
-                .passwordEncoder(new BCryptPasswordEncoder()).withUser("laowang").password(new BCryptPasswordEncoder().encode("123")).roles("v1");
+//        //在内存中存储密码的加密方式
+//        auth.inMemoryAuthentication()
+//                .passwordEncoder(new BCryptPasswordEncoder()).withUser("jimmy").password(new BCryptPasswordEncoder().encode("123")).roles("v1","v2")
+//                .and()
+//                .passwordEncoder(new BCryptPasswordEncoder()).withUser("root").password(new BCryptPasswordEncoder().encode("123")).roles("v1","v2","v3")
+//                .and()
+//                .passwordEncoder(new BCryptPasswordEncoder()).withUser("laowang").password(new BCryptPasswordEncoder().encode("123")).roles("v1");
 
+        //在数据库中存取密码的加密方式
+        auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
     }
 }
+
+```
+
+#### 2.轻松配置
+
+```java
+ @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        //授权
+        http.authorizeRequests().antMatchers("/","/css/**","/js/**","/error/**").permitAll()
+                .antMatchers("/user/login/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin().loginPage("/user/login/page")
+                .successHandler(new AuthenticationSuccessHandler() {
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+                        httpServletResponse.setContentType("application/json;charset=utf-8");
+                        PrintWriter out = httpServletResponse.getWriter();
+                        out.write("{\"status\":\"ok\",\"msg\":\"登录成功\"}");
+                        out.flush();
+                        out.close();
+                    }
+                })
+                .failureHandler(new AuthenticationFailureHandler() {
+                    @Override
+                    public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+                        httpServletResponse.setContentType("application/json;charset=utf-8");
+                        PrintWriter out = httpServletResponse.getWriter();
+                        out.write("{\"status\":\"error\",\"msg\":\"登录失败\"}");
+                        out.flush();
+                        out.close();
+                    }
+                })
+                .loginProcessingUrl("/user/login/ass")
+                .usernameParameter("username")
+                .passwordParameter("password").permitAll()
+                .and().csrf().disable()
+                .logout().logoutUrl("/exit").permitAll();
+
+    }
 ```
 
 
 
+### 原理解析
 
+springSecurity本质上是一个过滤器，拦截路径为/*,他自身又封装了11种拦截器，如下
+
+具体逻辑在这个org.springframework.security.web.FilterChainProxy#doFilterInternal（）里面
+
+![image-20210329155943914](springboot.assets/image-20210329155943914.png)
+
+springSecurity未登录时的基本执行流程：逐次通过这11个拦截器，在最后一个拦截器判断此次请求是否拥有访问某个资源的权限，如果没有就抛出（AccessDeniedException）拒绝访问异常，然后通过处理该异常，发送开始身份认证：先把本次请求保存到Session中，然后获取登录页面的地址（URL），然后直接重定向到该地址
+
+### 自定义登录校验
+
+流程：Security框架把用户名给你，让你去查数据库有没有这个用户的相关信息，如果有查询出来对比账号密码，密码一定要加密，详见无脑配置，如果没有查到就抛出UsernameNotFoundException，具体操作如下
+
+```java
+@Service("iUserDetailServiceImpl")
+public class IUserDetailServiceImpl implements UserDetailsService {
+    @Override
+    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        if (!"root".equals(s)) {
+            throw new UsernameNotFoundException("用户名不是root");
+        }
+        return new User("root",new BCryptPasswordEncoder().encode("123"),
+                AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_v1,ROLE_v2"));//指定权限的时候一定要加ROLE_作为前缀
+    }
+}
+```
+
+### 自定义登录成功跳转界面
+
+登录失败跳转页面类似（AuthenticationFailureHandler）
+
+```java
+public class ISuccessHandler implements AuthenticationSuccessHandler {
+
+    private final String forwardUrl;
+
+    public ISuccessHandler(String forwardUrl) {
+        this.forwardUrl = forwardUrl;
+    }
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        response.sendRedirect(forwardUrl);
+    }
+}
+//使用
+  protected void configure(HttpSecurity http) throws Exception {
+        //自定义登录页面
+        http.formLogin().loginPage("/user/login/page")
+        //登录处理页面
+        .loginProcessingUrl("/user/login/process")
+        //登录成功的页面
+        .successHandler(new ISuccessHandler("http://www.baidu.com"))
+  }
+```
+
+### 权限配置
+
+#### 1.antMatcher（）
+
+参数是可变参数，每个参数是一个ant表达式，用于匹配URL规则
+
+规则如下
+
+- ？ 匹配一个字符
+- ‘*’   匹配0个或多个字符
+- **   匹配0个或多个目录
+
+```java
+protected void configure(HttpSecurity http) throws Exception {
+        //权限控制
+        http.authorizeRequests()
+                .antMatchers("/user/l1/**").hasRole("v1")//匹配多个目录
+                .antMatchers("/user/l2/*.js").hasRole("v2")//匹配多个js文件
+    }
+```
+
+#### 2.hasRole
+
+配置角色，给用户授权时要加上**ROLE_**的前缀，表示拥有此角色才能访问此路径
+
+注意事项：
+
+如果是hasAnyRole（roles）配置了多个角色，只要有其中一个角色就能访问改路径；
+
+如果是你还配置了hasAuthority，如果用户拥有这个权限，那么用户也可以访问该路径；
+
+总之，他们之间是**或（||）**的关系。
+
+```java
+
+protected void configure(HttpSecurity http) throws Exception {
+        //权限控制
+        http.authorizeRequests()
+                .antMatchers("/user/l1/**").hasRole("v1")//匹配多个目录
+                .antMatchers("/user/l2/*.js").hasRole("v2")//匹配多个js文件
+    }
+
+public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        if (!"root".equals(s)) {
+            throw new UsernameNotFoundException("用户名不是root");
+        }
+        return new User("root",new BCryptPasswordEncoder().encode("123"),
+                AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_v1,ROLE_v2"));//授予角色
+    }
+```
+
+#### 3.hasAuthority
+
+配置权限，拥有此权限才能访问此路径
+
+注意事项：
+
+如果你使用hasAnyAuthority或者hasAuthority给一个路径配置了多个权限，那么用户只需要其中一个权限就能访问该路径。
+
+```java
+protected void configure(HttpSecurity http) throws Exception {
+        //权限控制
+        http.authorizeRequests()
+                .antMatchers("/user/l1/**").hasRole("v1")//匹配多个目录
+                .antMatchers("/user/l1/**").hasAuthority("v1")
+    }
+
+public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        if (!"root".equals(s)) {
+            throw new UsernameNotFoundException("用户名不是root");
+        }
+        return new User("root",new BCryptPasswordEncoder().encode("123"),
+                AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_v1,v1"));//授予权限
+    }
+```
+
+#### 4.hasIpAddress
+
+需要在地址栏指定一个特定的IP才能访问
+
+```
+antMatchers("/user/l1/**").hasIpAddress("127.0.0.1")
+```
+
+#### 5.access
+
+2-4都是通过access来进行调用的，详见官网，access可以自己定制权限控制，不过需注意anyRequest是先于登录验证的，而且需注意权限控制时路径的匹配问题，如下
+
+```java
+        //授权
+        http.authorizeRequests(auth ->{
+            //设置首页、静态资源、错误页面等过滤
+            auth.antMatchers("/","/css/**","/js/**","/error/**").permitAll()
+                    .antMatchers("/user/login/**").permitAll()
+
+                    .antMatchers("/user/l1/**").hasRole("v1")//如果这个匹配了，那么不会执行下面了
+
+                    .anyRequest().access("@IAuthControl.hasPermission(request,authentication)");
+            //所有的请求必须认证才能访问，必须登录
+        });
+       
+```
+
+access自定义权限控制
+
+```java
+@Component
+public class IAuthControl{
+    public Boolean hasPermission(HttpServletRequest request,Authentication authentication) {
+        String uri = request.getRequestURI();
+        log.info("当前uri：{}",uri);
+        //获取userDetail
+        Object principal = authentication.getPrincipal();
+        //判断用户是否已经登录，不是匿名用户      
+        if(principal instanceof UserDetails){
+            //获取该用户拥有的权限
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();         
+            //判断该用户是否拥有此路径权限，这里仅仅模拟
+            //真正的场景是要到数据库查询权限进行验证
+            return authorities.contains(new SimpleGrantedAuthority("v1"));
+        }
+        //拒绝访问
+        return false;
+    }
+}
+```
+
+### 基于注解的权限控制
+
+启用注解支持
+
+```java
+@EnableGlobalMethodSecurity(securedEnabled = true,prePostEnabled = true)
+```
+
+#### 1.@Secured
+
+写在Controller方法上，如下
+
+```java
+ /*
+ 相当于.antMatchers("/user/l1/**").hasRole("v1","v2"),
+ 可以与java配置同时使用，
+ 如果配置了.antMatchers("/user/l1/**").hasRole("v1")与@Secured({"ROLE_v2"})
+ 相当于要过两道坎，如果用户的权限只有v1,那么会被注解那里拦下，如果是v2，会被java配置拦下，所有要同时有v1,v2才行
+ */
+@Secured({"ROLE_v1","ROLE_v2"})
+    @RequestMapping("/l1/{l}")
+    public String l1(@PathVariable("l")String l){
+        return "L1/"+l;
+    }
+```
+
+#### 2.@PreAuthorize
+
+表示访问方法或类在执行之前先判断权限，大多数情况下都是使用这个注解，注解的参数和access（）方法取值相同，都是权限表达式
+
+与@Secured的区别是没有区别
+
+```java
+@PreAuthorize("hasAnyRole('v2')")
+@RequestMapping("/l1/{l}")
+public String l1(@PathVariable("l")String l){
+    log.info("当前访问的是：{}","L1/"+l);
+    return "L1/"+l;
+}
+```
+
+#### 3.@PostAuthorize
+
+表示方法或类执行结束后判断权限，此注解很少被使用到。
+
+### Remember-me
+
+需要依赖jdbc
+
+```xml
+ <!--数据库连接-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <!--spring-jdbc-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+```
+
+配置
+
+```java
+ //记住我
+        http.rememberMe()
+                .tokenRepository(persistentTokenRepository)
+                .tokenValiditySeconds(60)
+                .userDetailsService(userDetailsService);
+                
+    @Bean
+    public PersistentTokenRepository buildPersistentTokenRepository(DataSource dataSource){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+
+        //自动建表,每次启动都回去建表，所以第二次要注释掉
+       // jdbcTokenRepository.setCreateTableOnStartup(true);
+
+        return jdbcTokenRepository;
+    }
+```
+
+```html
+<div id="rem"><label for="rm">自动登录</label><input id="rm" name="remember-me" type="checkbox"></div>
+```
+
+### 登出
+
+配置
+
+```java
+http.logout()
+                .logoutUrl("/lu")//默认是/logout
+                .logoutSuccessUrl("/");//登出后跳转界面
+```
+
+```html
+<div style="float: right"><a href="/lu">登出</a></div>
+```
+
+### CSRF
+
+#### 什么是CSRF
+
+- CSRF（Cross site request forgery）跨站请求伪造，也被称为”OneClick Attack“或者 Session Riding，通过伪造用户请求访问受信任站点的非法请求访问
+- 跨域：只要协议、IP、端口中任一不同皆为跨域
+- 客户端与服务端进行交互时，由于http协议是无状态协议，所有引入了cookie进行记录客户端身份，在cookie中会存放session id用来识别客户端身份的。在跨域的情况下，Session id可能被第三方恶意劫持，通过这个Session id向客户端发起请求时，服务端会认为这个请求是合法的，可能发生很多意想不到的事情。
+
+#### Spring Security中的CSRF
+
+- 从Spring Security4开始CSRF防护默认开启，默认会拦截请求，进行CSRF处理，CSRF为了保证不是第三方网站访问，要求访问时携带参数名为_csrf值为token（token在服务端产生）的内容，如果token和服务端的token匹配成功，则正常访问。
+
+往后台发post请求时，带上这个参数
+
+```html
+<input type="hidden" name="_csrf" th:value="${_csrf.token}" th:if="${_csrf}">
+```
+
+### JJWT
+
+介绍详见JWT介绍.md
+
+#### 依赖
+
+```xml
+  <!--JWT依赖-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+```
+
+#### 生成token
+
+```java
+ @Test
+    public void test1(){
+        JwtBuilder jwtBuilder = Jwts.builder()
+                //唯一id
+                .setId("666")
+                //接受的用户
+                .setSubject("Van")
+                //签发时间
+                .setIssuedAt(new Date())
+                //签名及密钥
+                .signWith(SignatureAlgorithm.HS256,"The deep dark fantasy");
+
+        String token = jwtBuilder.compact();
+        log.info("token:{}",token);
+        log.info("-------------令牌解析----------------");
+        String[] split = token.split("\\.");
+        log.info("第一部分：{}", new String(Base64Codec.BASE64.decode(split[0])));
+        log.info("第二部分：{}", new String(Base64Codec.BASE64.decode(split[1])));
+        log.info("第三部分：{}", new String(Base64Codec.BASE64.decode(split[2])));
+    }
+```
+
+#### 解析token
+
+```java
+ @Test
+    public void test2(){
+        String s = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2NjYiLCJzdWIiOiJWYW4iLCJpYXQiOjE2MTcxNzk3MTZ9.dkRgtVuaeEjyBqc5gtt5Teg98_Cv-mUsFSCNQG8EXh8";
+        Claims claims = (Claims) Jwts.parser().setSigningKey("The deep dark fantasy").parse(s).getBody();
+        log.info("id:{}",claims.getId());
+        log.info("创建时间:{}",claims.getIssuedAt());
+        log.info("用户:{}",claims.getSubject());
+    }
+```
+
+#### token过期校验
+
+过期的token，解析会抛出异常
+
+```java
+ @Test
+    public void test1(){
+        long date = System.currentTimeMillis();
+        long exp = date + 60 * 1000;
+        JwtBuilder jwtBuilder = Jwts.builder()
+                //唯一id
+                .setId("666")
+                //接受的用户
+                .setSubject("Vans")
+                //签发时间
+                .setIssuedAt(new Date())
+                //设置失效时间
+                .setExpiration(new Date(exp))
+                //签名及密钥
+                .signWith(SignatureAlgorithm.HS256,"The deep dark fantasy");
+
+        String token = jwtBuilder.compact();
+        log.info("token:{}",token);
+        log.info("-------------令牌解析----------------");
+        String[] split = token.split("\\.");
+        log.info("第一部分：{}", new String(Base64Codec.BASE64.decode(split[0])));
+        log.info("第二部分：{}", new String(Base64Codec.BASE64.decode(split[1])));
+        log.info("第三部分：{}", new String(Base64Codec.BASE64.decode(split[2])));
+    }
+```
+
+#### 自定义Claims
+
+```java
+.claim("name","jimmy")
+.claim("ass","hole")//自定义
+    
+log.info("name:{}",claims.get("name"));
+log.info("ass:{}",claims.get("ass"));//获取
+```
+
+## 整合Shiro
+
+### 依赖
+
+```xml
+<!-- shiro-->
+<dependency>
+    <groupId>org.apache.shiro</groupId>
+    <artifactId>shiro-spring</artifactId>
+    <version>1.7.1</version>
+</dependency>
+```
+
+### 配置
+
+```java
+//shiro拦截器，拦截请求进行认证
+@Bean
+public ShiroFilterFactoryBean buildShiroFilterFactory(WebSecurityManager defaultWebSecurityManager){
+    ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
+    shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
+    /*
+    shiro的内置过滤器
+    anon：无需认证可以访问
+    authc：必须认证了才能访问
+    user：必须拥有记住我功能才能使用
+    perms：拥有对某个资源的权限才能访问
+    role：拥有某个角色才能访问
+     */
+    Map<String,String> filterMap = new LinkedHashMap<>();
+
+    //设置主页不需要认证，需设在前面
+    filterMap.put("/","anon");
+    //设置所有路径都必须要经过认证
+    filterMap.put("/*","authc");
+    filterMap.put("/user/login/**","anon");
+
+    filterMap.put("/user/l1/**","perms[l1]");
+    filterMap.put("/user/l2/**","perms[l2]");
+    filterMap.put("/user/l3/**","perms[l3]");
+
+    //登出
+  //  filterMap.put("/user/logout","logout");
+
+    //添加验证逻辑
+    shiroFilterFactoryBean.setFilterChainDefinitionMap(filterMap);
+
+    //设置登录界面
+    shiroFilterFactoryBean.setLoginUrl("/user/login/page");
+
+    //设没有权限时访问的页面
+    shiroFilterFactoryBean.setUnauthorizedUrl("/user/unauth");
+
+    return shiroFilterFactoryBean;
+}
+//安全管理器，配置remember-me、用户认证、权限校验等等。
+ //defaultWebSecurityManager
+    @Bean
+    public WebSecurityManager buildDWSM(UserRealm userRealm,CookieRememberMeManager cookieRememberMeManager){
+        DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
+        defaultWebSecurityManager.setRealm(userRealm);
+        defaultWebSecurityManager.setRememberMeManager(cookieRememberMeManager);
+        return defaultWebSecurityManager;
+    }
+//remember-me功能
+    @Bean
+    public CookieRememberMeManager buildCookieRememberMeManager(){
+        CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
+        SimpleCookie cookie = new SimpleCookie("iRememberMe");
+        cookie.setMaxAge(10*60);
+        cookieRememberMeManager.setCookie(cookie);
+        return cookieRememberMeManager;
+    }
+//用户登录，权限认证逻辑
+    //自定义Realm
+    @Bean
+    public UserRealm buildUserRealm(){
+        return new UserRealm();
+    }
+```
+
+### 用户登录controller逻辑
+
+```java
+  @PostMapping("/login/process")
+    @ResponseBody
+    public Message loginProcess(User user,boolean rememberMe){
+        if (StringUtils.isEmpty(user.getUsername()) || StringUtils.isEmpty(user.getPassword())) {
+            return new Message(1,"请输入用户名和密码！");
+        }
+
+        //用户认证信息
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        //记住我
+        if(rememberMe){
+            usernamePasswordToken.setRememberMe(true);
+        }
+        try {
+            //进行验证，这里可以捕获异常，然后返回对应信息
+            subject.login(usernamePasswordToken);
+        } catch (UnknownAccountException e) {
+            log.error("用户名不存在！", e);
+            return new Message(1,"用户名不存在！");
+        } catch (AuthenticationException e) {
+            log.error("账号或密码错误！", e);
+            return new Message(1,"账号或密码错误！");
+        } catch (AuthorizationException e) {
+            log.error("没有权限！", e);
+            return new Message(1,"没有权限");
+        }
+        return new Message(2,"login success");
+    }
+```
+
+### 用户登出
+
+#### 方式1
+
+直接在shiro过滤器配置里面添加以下配置，该路径可以是不存在的
+
+```java
+filterMap.put("/user/logout","logout");
+```
+
+#### 方式2
+
+不在配置里面配置，自定义路径在controller里面使用subject登出
+
+```java
+  @RequestMapping("/logout")
+    @ResponseBody
+    public Message logout(){
+        Subject subject = SecurityUtils.getSubject();
+        if(subject.getPrincipal()!=null){
+            subject.logout();
+            return new Message(3,"登出成功");
+        }
+        return new Message(3,"请先登录");
+    }
+```
 

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+欢迎您
+<div >
+    <div style="text-align: center ;border: 3px solid red;margin-left: 50px;margin-right: 50px">
+        首页
+        <div style="float: right"><a href="/user/login/page">登录</a></div>
+        <div style="float: right"><a href="javascript:void (0)" onclick="test2()">登出</a></div>
+    </div>
+</div>
+<div id="app">
+    <div id="d1" >
+        <p style="background-color: pink">LEVEL1</p>
+        <ul>
+            <li><a href="/user/l1/1">1</a></li>
+            <li><a href="/user/l1/2">2</a></li>
+            <li><a href="/user/l1/3">3</a></li>
+        </ul>
+    </div>
+    <div id="d2">
+        <p style="background-color: orange">LEVEL2</p>
+        <ul>
+            <li><a href="/user/l2/1">1</a></li>
+            <li><a href="/user/l2/2">2</a></li>
+            <li><a href="/user/l2/3">3</a></li>
+        </ul>
+    </div>
+    <div id="d3">
+        <p style="background-color: yellow">LEVEL3</p>
+        <ul>
+            <li><a href="/user/l3/1">1</a></li>
+            <li><a href="/user/l3/2">2</a></li>
+            <li><a href="/user/l3/3">3</a></li>
+        </ul>
+    </div>
+    <div><a href="/demo/t1">去t1界面</a></div>
+</div>
+<div>
+    <form action="/error/500.html" method="post">
+        <input type="submit" value="提交">
+    </form>
+</div>
+</body>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script>
+    function test2(){
+        $.ajax({
+                type:"post",
+                url:`/user/logout`,
+                contentType:"application/json;charset=utf-8",
+                dataType:"json",
+                data:{},
+                success: function (result) {
+                    if (result){
+                        if(result.code===3){
+                            alert(result.message);
+                        }
+                    }
+                },
+                error:function (error) {
+                    alert("出错了")
+                   console.log(error)
+                }
+            }
+        )
+    }
+</script>
+</html>

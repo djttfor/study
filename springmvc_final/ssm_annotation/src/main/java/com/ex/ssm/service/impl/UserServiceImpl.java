@@ -56,4 +56,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .like(User::getUsername,user.getUsername()));
 
     }
+
+    @Override
+    public User selectByName(String name) {
+        return getOne(getQueryWrapper().eq(User::getUsername,name));
+    }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>主页</title>
@@ -10,7 +11,10 @@
 <div >
     <div style="text-align: center ;border: 3px solid red;margin-left: 50px;margin-right: 50px">
         首页
-        <div style="float: right"><a href="user/login">登录</a></div>
+        <div style="float: right"><a href="/user/login/process">登录</a></div>
+<!--        <input type="text" name="_csrf" th:value="${_csrf.token}" id="csrft">-->
+        <div style="float: right"><a href="/exit">登出</a></div>
+        <div style="float: right"><a href="javascript:void (0)" onclick="test2()">test2</a></div>
     </div>
 </div>
 <div id="app">
@@ -38,6 +42,7 @@
             <li><a href="/user/l3/3">3</a></li>
         </ul>
     </div>
+    <div><a href="/demo/t1">去t1界面</a></div>
 </div>
 <div>
     <form action="/error/500.html" method="post">
@@ -45,4 +50,30 @@
     </form>
 </div>
 </body>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script>
+    function test2(){
+        let data={};
+        data.username = "aaa";
+        data.password = "bbb";
+        data.csrfmiddlewaretoken = $('#csrft').val();
+        data = JSON.stringify(data);
+        alert(data)
+        $.ajax({
+                type:"post",
+                url:`/user/test2`,
+                contentType:"application/json;charset=utf-8",
+                dataType:"json",
+                data:data,
+                success: function (result) {
+                    alert(Object.values(result))
+                    //console.log(result)
+                },
+                error:function (error) {
+                    alert(error)
+                }
+            }
+        )
+    }
+</script>
 </html>

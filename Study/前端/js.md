@@ -193,7 +193,6 @@ $(function (){
         alert($(this).css("fontSize"));
     })
         .css("fontSize","30px");
-
 });
 $(function(){});//入口函数
  $('#eyebrows div:first-child>a').click(function () {
@@ -229,3 +228,57 @@ ip3.click(()=>{
 =})
 ```
 
+### 6.2 ajax
+
+```js
+ $.ajax({
+        type:"post",
+        url:"/ssm/user/login",
+        contentType:"application/json;charset=utf-8",
+        dataType:"json",
+        data:data,
+        success:function (result) {
+            alert(result.code+result.message);
+            if(result.code===1){
+                location.href="../page/a.html";
+            }
+        },
+        error:function (error) {
+            alert("登录失败");
+        }
+    })
+
+  function isubmit(){
+       // $('#form1').submit();
+        let data = $('#form1').serialize()
+        alert(data)
+        $.ajax({
+                type:"post",
+                url:`/user/login/ass`,
+                contentType:"application/x-www-form-urlencoded;charset=utf-8",
+                dataType:"json",
+                data:data,
+                success: function (result) {
+                    alert(Object.values(result))
+                   //console.log(result)
+                },
+                error:function (error) {
+                    alert(error)
+                }
+            }
+        )
+    }
+```
+
+获取表单数据作为ajax数据发送
+
+```js
+function formDataToJSON(obj) {
+    let params = obj.serializeArray();//需要一个JQuery对象
+    let values = {};
+    for (let item in params) {
+        values[params[item].name] = params[item].value;
+    }
+    return JSON.stringify(values);
+}
+```

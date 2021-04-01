@@ -60,10 +60,8 @@ public class Test1 {
 
     @Test
     public void query3(){
-        List<User> users = userMapper.aQueryAllByNestedResult();
-        for (User user : users) {
-            System.out.println(user);
-        }
+        User user = userService.selectByName("jimmy");
+        System.out.println(user);
     }
 
     @Test

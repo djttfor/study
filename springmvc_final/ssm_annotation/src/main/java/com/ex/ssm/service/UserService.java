@@ -19,4 +19,5 @@ public interface UserService extends IService<User> {
     User loginCheck(User user);
     Page<User> selectPage(int current,int pageSize);
     Page<User> selectLikePage(User user,int current,int pageSize);
+    User selectByName(String name);
 }

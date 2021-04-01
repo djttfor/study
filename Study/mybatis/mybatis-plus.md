@@ -1,5 +1,3 @@
-## 1.启动配置（ssm注解方式）
-
 ### 1.1 maven依赖
 
 详见mybatis-plus-maven依赖
@@ -150,6 +148,14 @@ public class ISpringConfig {
 ```
 
 ### 1.3 使用mybatis-plus写xml
+
+crud配置
+
+```java
+public interface UserService extends IService<User>
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService 
+public interface UserMapper extends BaseMapper<User>
+```
 
 xml配置
 

@@ -1,0 +1,11 @@
+#app{
+    position: absolute;
+    top:40%;
+    left:40%;
+    text-align: center;
+}
+
+#app>div{
+    float: left;
+    margin-left: 30px;
+}
