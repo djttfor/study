@@ -1734,3 +1734,91 @@ filterMap.put("/user/logout","logout");
     }
 ```
 
+## Swagger2
+
+在团队开发中，一个好的 API 文档不但可以减少大量的沟通成本，还可以帮助一位新人快速上手业务。传统的做法是由开发人员创建一份 RESTful API 文档来记录所有的接口细节，并在程序员之间代代相传。
+
+这种做法存在以下几个问题：
+
+- API 接口众多，细节复杂，需要考虑不同的HTTP请求类型、HTTP头部信息、HTTP请求内容等，想要高质量的完成这份文档需要耗费大量的精力；
+- 难以维护。随着需求的变更和项目的优化、推进，接口的细节在不断地演变，接口描述文档也需要同步修订，可是文档和代码处于两个不同的媒介，除非有严格的管理机制，否则很容易出现文档、接口不一致的情况
+
+**Swagger2** 的出现就是为了从根本上解决上述问题。它作为一个规范和完整的框架，可以用于生成、描述、调用和可视化 RESTful 风格的 Web 服务：
+
+1. 接口文档在线自动生成，文档随接口变动实时更新，节省维护成本
+2. 支持在线接口测试，不依赖第三方工具
+
+### 依赖
+
+```xml
+<dependency>
+    <groupId>io.springfox</groupId>
+    <artifactId>springfox-swagger2</artifactId>
+    <version>2.9.2</version>
+</dependency>
+<dependency>
+    <groupId>io.springfox</groupId>
+    <artifactId>springfox-swagger-ui</artifactId>
+    <version>2.9.2</version>
+</dependency>
+```
+
+### 配置
+
+访问localhost/swagger-ui.html，即可看见文档
+
+```java
+@Configuration
+@EnableSwagger2
+public class Swagger2Config {
+    //api接口包扫描路径
+    public static final String SWAGGER_SCAN_BASE_PACKAGE = "com.ex.controller";
+
+    public static final String VERSION = "1.0.0";
+
+    @Bean
+    public Docket createRestApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .enable(true)
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.ex.controller"))
+                .paths(PathSelectors.any())
+                .build();
+    }
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("Luis Site Swagger Restful API")
+                .description("更多Spring Boot相关文章请关注：https://luischen.com/")
+                .termsOfServiceUrl("https://luischen.com/")
+                .contact(new Contact("jimmy","www.baidu.com","123@qq.com"))
+                .version("1.0")
+                .build();
+    }
+}
+
+```
+
+### 常用注解
+
+@Api：修饰整个类，描述Controller的作用
+
+@ApiOperation：描述一个类的一个方法，或者说一个接口
+
+@ApiParam：单个参数描述
+
+@ApiModel：用对象来接收参数
+
+@ApiProperty：用对象接收参数时，描述对象的一个字段
+
+@ApiResponse：HTTP响应其中1个描述
+
+@ApiResponses：HTTP响应整体描述
+
+@ApiIgnore：使用该注解忽略这个API
+
+@ApiError ：发生错误返回的信息
+
+@ApiImplicitParam：描述一个请求参数，可以配置参数的中文含义，还可以给参数设置默认值
+
+@ApiImplicitParams：描述由多个 @ApiImplicitParam 注解的参数组成的请求参数列表

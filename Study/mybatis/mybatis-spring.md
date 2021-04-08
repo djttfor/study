@@ -1,5 +1,3 @@
-# mybatis-spring
-
 ## 1.maven配置
 
 mybatis 版本3.5.5 ，mybatis-spring版本2.0.6

@@ -36,7 +36,7 @@ spring + springmvc + mybatis plus
         <mybatis-spring>2.0.6</mybatis-spring>
         <mybatis-plus>3.4.2</mybatis-plus>
         <my.generator.version>1.0.0</my.generator.version>
-        <junit5.version>5.2.0</junit5.version>
+        <junit5.version>5.7.1</junit5.version>
         <servlet.version>3.1.0</servlet.version>
         <aspectj.version>1.9.6</aspectj.version>
         <fastjson.version>1.2.73</fastjson.version>
@@ -82,6 +82,16 @@ spring + springmvc + mybatis plus
                 <artifactId>log4j-slf4j-impl</artifactId>
                 <version>${log4j2.version}</version>
             </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+                <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
             <!--数据库连接池-->
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -890,6 +900,10 @@ public class MyExceptionHandle implements HandlerExceptionResolver {
 @WebAppConfiguration
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ISpringConfig.class})
+
+//Junit4.5
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:spring-config.xml"})
 ```
 
 ## Restful 风格

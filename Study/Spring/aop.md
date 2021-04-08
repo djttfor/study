@@ -1,16 +1,34 @@
-# AOP
-
 ## 基本概念
 
 **Aspect(切面)**:跨多个类的关注点的模块化。事务管理是企业Java应用程序中横切关注的一个很好的例子。在Spring AOP中，方面是通过使用常规类（基于模式的方法）或使用@Aspect注释（@AspectJ样式）注释的常规类来实现的。
 
-**Join point（连接点）**：程序执行过程中的一个点，如方法的执行或异常的处理。在Spring AOP中，连接点总是表示方法的执行。通俗的讲，连接点即表示类里面可以被增强的方法。
+### Advice
 
-**Advice（通知**）：所谓通知是指拦截到Joinpoint之后所要做的事情就是通知，通知分为前置通知、后置通知、异常通知、最终通知和环绕通知(切面要完成的功能)
+- Advice可以理解为通知、建议，在Spring中通过定义Advice来定义代理逻辑
 
-**Pointcut（切入点**）：切入点是与连接点匹配的表达式，用于确定是否需要执行通知。切入点使用与连接点匹配的不同类型的表达式，Spring框架使用AspectJ切入点表达式语言。我们可以将切入点理解为需要被拦截的Join point。
+### Pointcut
 
+- Pointcut是切点，表示Advice对应的代理逻辑应用在哪个类、哪个方法上
 
+### Advisor
+
+- Advisor等于Advice+Pointcut，表示代理逻辑和切点的一个整体，程序员可以通过定义或封装一个Advisor，来定义切点和代理逻辑。
+
+### Weaving
+
+- Weaving表示织入，将Advice代理逻辑在源代码级别嵌入到切点的过程，就叫做织入
+
+### Target
+
+- Target表示目标对象，也就是被代理对象，在AOP生成的代理对象中会持有目标对象
+
+### Join Point
+
+- Join Point表示连接点，在Spring AOP中，就是方法的执行点。
+
+## 工作原理
+
+![image-20210407153922776](aop.assets/image-20210407153922776.png)
 
 ## 1.maven依赖
 
@@ -61,12 +79,13 @@
 public class TimeRecordAspectAdvice {
     private static final Logger log = LoggerFactory.getLogger(TimeRecordAdvice.class);
     private Long startTime;
+    
 @Pointcut("execution(* com.ex.smp.service.*.*(..))")
 public void expression(){}
 
 @Before("expression()")
 public void before(){
-    log.info("开始,当前时间为{}ms",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+    log.info("startTime:{}",sf.format(new Date(startTime)));
     startTime = System.currentTimeMillis();
 }
 @After("expression()")

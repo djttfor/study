@@ -41,6 +41,7 @@ public class ISpringConfig {
         msfb.setPlugins(new SQLExtractLog(),mpi);
         return msfb;
     }
+    //@MapperScan("com.ex.ssm.mapper")可代替下面的方法
     @Bean
     public MapperScannerConfigurer getMapperScannerConfigurer(){
         MapperScannerConfigurer msc = new MapperScannerConfigurer();
