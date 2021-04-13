@@ -90,3 +90,17 @@
     <collection property="members" column="uid"  select="com.ex.ssm.mapper.MemberMapper.queryMemberByUid" />
 </resultMap>
 ```
+
+```java
+@Select("select * from user")
+ @Results(id = "userMap" ,value = {
+         @Result(property = "id" ,column = "id",id = true),
+         @Result(property = "username",column = "username"),
+         @Result(property = "password",column = "password"),
+         @Result(property = "account",column = "id",javaType = com.mvc.pojo.Account.class,
+         one = @One(select = "com.mvc.mapper.AccountMapper.findAccountByAid")),
+         @Result(property = "members", column = "id",javaType = java.util.List.class,
+         many = @Many(select = "com.mvc.mapper.MemberMapper.findMemberByUid"))
+ })
+List<User> findAll();
+```

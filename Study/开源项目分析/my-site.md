@@ -19,12 +19,18 @@
 虽然不知道原理是什么，但是只要把下面的slf4j-log4j12排除即可
 
 ```xml
-<exclusions>
-   <exclusion>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-   </exclusion>
-</exclusions>
+<!-- 腾讯云对象存储 -->
+		<dependency>
+			<groupId>com.qcloud</groupId>
+			<artifactId>cos_api</artifactId>
+			<version>5.2.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 ```
 
 ### 2.判断用户是否在线
@@ -32,4 +38,6 @@
 简单粗暴，登录后直接把用户对象放在Session里面，基本流程如下
 
 ![image-20210402172359654](my-site.assets/image-20210402172359654.png)
+
+### 3.文章发布与存为草稿
 

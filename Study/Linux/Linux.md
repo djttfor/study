@@ -2,10 +2,16 @@
 
 ## 1.软件安装
 
-确认centos版本
+### 确认centos版本
 
 ```
 cat /etc/redhat-release 
+```
+
+### 查看内核版本
+
+```
+uname -r
 ```
 
 安装软件一般有三种方式：rpm 、解压缩、yum在线安装
@@ -619,3 +625,4 @@ JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom"
 ```
 cd /etc/sysconfig/network-scripts
 ```
+

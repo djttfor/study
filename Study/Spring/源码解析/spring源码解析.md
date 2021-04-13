@@ -230,7 +230,7 @@ class InitBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
 
 ## InitializingBean
 
-方法 afterPropertiesSet，执行在bean实例属性填充后，用于检查属性或者填充属性
+方法 afterPropertiesSet，相当于初始化方法
 
 ```java
 @Override
@@ -238,6 +238,49 @@ class InitBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
         log.info("account:{}",this);
     }
 ```
+
+## BeanDefinitionRegistryPostProcessor
+
+方法postProcessBeanDefinitionRegistry
+
+即可以自己注册beanDefinition，也可以判断其他beanDefinition存在已否来做相应的事
+
+方法postProcessBeanFactory
+
+用法跟前面的差不多，只是会在前面的方法执行完后执行
+
+```java
+@Component
+public class ITest implements BeanDefinitionRegistryPostProcessor {
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(IUser.class);
+        beanDefinitionBuilder.addPropertyValue("name","张三");
+        beanDefinitionBuilder.addPropertyValue("age",18);
+        registry.registerBeanDefinition("iuser",beanDefinitionBuilder.getBeanDefinition());
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        //如果找不到会抛出异常
+        BeanDefinition iuser = beanFactory.getBeanDefinition("iuser");
+        IUser iUser = new IUser();
+        iUser.setName("李四");
+        iUser.setAge(19);
+        beanFactory.registerSingleton("iuser",iUser);
+    }
+}
+```
+
+## Mybatis-Spring @MapperScan原理
+
+@MapperScan如何被spring解析的
+
+![image-20210410190025194](spring源码解析.assets/image-20210410190025194.png)
+
+MapperScannerConfigurer里面的骚操作（这里最后的步骤不完整）
+
+![image-20210410200100814](spring源码解析.assets/image-20210410200100814.png)
 
 ## AOP
 
@@ -262,4 +305,6 @@ public class InitBeanPostProcessor implements InstantiationAwareBeanPostProcesso
     }
 }
 ```
+
+## 
 

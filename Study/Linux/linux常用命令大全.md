@@ -445,3 +445,16 @@ firewall-cmd --permanent --zone=public --add-port=3306/tcp
 　　　　(4)find . -name 'srm*' 　　#表示当前目录下查找文件名开头是字符串‘srm’的文件
 ```
 
+#### 33.curl
+
+用于调试nginx ，tomcat是否启动成功
+
+```bash
+curl ip:端口
+#示例
+curl localhost:3344
+#如果提示命令没找到，输入以下命令
+yum update -y 
+yum install curl -y
+```
+
