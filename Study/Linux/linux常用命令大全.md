@@ -410,6 +410,38 @@ firewall-cmd --list-ports
 firewall-cmd --permanent --zone=public --add-port=3306/tcp
 ```
 
+关闭端口
+
+```
+firewall-cmd --permanent --zone=public --remove-port=8082/tcp
+```
+
+检查端口被哪个进程占用
+
+```
+netstat -lnp|grep 8080
+```
+
+查看绑定在该端口的tcp连接
+
+```
+netstat -talnp 3306
+```
+
+防火墙开机自启
+
+```
+systemctl enable firewalld
+```
+
+防火墙关闭开机自启
+
+```
+systemctl disable firewalld
+```
+
+
+
 #### centOS6
 
 开放端口
@@ -445,7 +477,7 @@ firewall-cmd --permanent --zone=public --add-port=3306/tcp
 　　　　(4)find . -name 'srm*' 　　#表示当前目录下查找文件名开头是字符串‘srm’的文件
 ```
 
-#### 33.curl
+### 33.curl
 
 用于调试nginx ，tomcat是否启动成功
 
@@ -456,5 +488,23 @@ curl localhost:3344
 #如果提示命令没找到，输入以下命令
 yum update -y 
 yum install curl -y
+```
+
+### 34.查看内存占用
+
+```
+free -m
+```
+
+### 35.查看CPU占用
+
+```
+top  #按q退出
+```
+
+### 36.查看进程id连接的外网IP
+
+```
+netstat -anptl pid
 ```
 

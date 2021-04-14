@@ -2,8 +2,10 @@ package com.ex.test;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ex.entity.Account;
 import com.ex.entity.User;
 import com.ex.mapper.UserMapper;
+import com.ex.service.AccountService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,9 @@ public class Test1 {
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
+
+    @Autowired
+    AccountService accountService;
 
 
     @Test
@@ -47,6 +52,19 @@ public class Test1 {
         log.error("k3:{}",k3);
         System.out.println(k3);
         log.error("####################################################################################");
+    }
+
+    @Test
+    public void test3(){
+        List<Account> list = accountService.list();
+        for (Account account : list) {
+            System.out.println(account);
+        }
+    }
+
+    @Test
+    public void test4(){
+         System.out.println(accountService.transfer(1,2,1000L));
     }
 
 

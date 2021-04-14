@@ -2,15 +2,14 @@ package com.ex.mapper;
 
 
 import com.ex.pojo.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
 public interface UserMapper {
 //    @Select("select * from user")
-//    @Results (id = "userMap" ,value = {
+//    @Results(id = "userMap" ,value = {
 //            @Result(property = "id" ,column = "id",id = true),
 //            @Result(property = "username",column = "username"),
 //            @Result(property = "password",column = "password"),

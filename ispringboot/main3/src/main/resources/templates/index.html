@@ -11,17 +11,18 @@
 <div >
     <div style="text-align: center ;border: 3px solid red;margin-left: 50px;margin-right: 50px">
         首页
-        <div style="float: right"><a href="/user/login/process">登录</a></div>
+        <div style="float: right"><a href="/user/login/toPage">登录</a></div>
 <!--        <input type="text" name="_csrf" th:value="${_csrf.token}" id="csrft">-->
         <div style="float: right"><a href="/exit">登出</a></div>
         <div style="float: right"><a href="javascript:void (0)" onclick="test2()">test2</a></div>
+        <div style="float: right;margin-right: 50px"><a href="javascript:void (0)" onclick="test3()">查询所有账户</a></div>
     </div>
 </div>
 <div id="app">
     <div id="d1" >
         <p style="background-color: pink">LEVEL1</p>
         <ul>
-            <li><a href="/user/l1/1">1</a></li>
+            <li><a href="javascript:void(0)" onclick="toL1('1')">1</a></li>
             <li><a href="/user/l1/2">2</a></li>
             <li><a href="/user/l1/3">3</a></li>
         </ul>
@@ -45,13 +46,31 @@
     <div><a href="/demo/t1">去t1界面</a></div>
 </div>
 <div>
-    <form action="/error/500.html" method="post">
-        <input type="submit" value="提交">
-    </form>
+    <a href="javascript:void (0)" onclick="itest">提交</a>
 </div>
 </body>
 <script src="/js/jquery-3.3.1.min.js"></script>
 <script>
+    function test3(){
+        $.ajax({
+                type:"get",
+                url:`/user/all`,
+                contentType:"application/json;charset=utf-8",
+                dataType:"json",
+                success: function (result) {
+                    let str = '';
+                    for (let resultElement of result) {
+                        str += Object.values(resultElement);
+                    }
+                    alert(str)
+                },
+                error:function (error) {
+                    alert(error)
+                }
+            }
+        )
+    }
+
     function test2(){
         let data={};
         data.username = "aaa";

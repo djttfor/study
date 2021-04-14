@@ -149,6 +149,18 @@ sudo rm -rf /var/lib/containerd
 #容器镜像服务-》镜像工具-》镜像加速器-》操作文档-》CentOS
 ```
 
+#### docker ps 莫名其妙的出错
+
+可能是上一次没有正常退出docker，以下三步解决
+
+```bash
+systemctl stop docker.socket
+sudo systemctl restart docker
+docker ps
+```
+
+
+
 ## docker run hello-world流程
 
 ![image-20210412163855015](docker.assets/image-20210412163855015.png)
@@ -616,6 +628,27 @@ docker run -d --name it01 -p 8080:8080 -v /home/dockerfile-script/tomcat/test:/u
 
 docker上的tomcat一样有启动慢的问题
 
+### Springboot部署实战
+
+```
+FROM java:8
+
+MAINTAINER djttfor
+
+# VOLUME 指定了临时文件目录为/tmp。
+# 其效果是在主机 /var/lib/docker 目录下创建了一个临时文件，并链接到容器的/tmp
+VOLUME /tmp 
+
+ADD main3-0.0.1-SNAPSHOT.jar app.jar
+
+# 运行jar包
+RUN bash -c 'touch /app.jar'
+
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+```
+
+
+
 ### 发布自己的镜像
 
 登录
@@ -630,8 +663,225 @@ docker push jwslh/mytomcat:1.0
 
 ## Docker0网络
 
-### 原理
+#### 原理
 
 我们每启动一个docker容器，docker就会给docker容器分配一个ip，我们只要安装了docker，就会有一个网卡docker0
 
-桥接模式，使用的技术是：
+#### 查看docker所有的网络
+
+```bash
+[root@izwz910hz2krcs95fx04b4z ~]# docker network ls 
+NETWORK ID     NAME      DRIVER    SCOPE
+fa733bda04be   bridge    bridge    local
+1eedf1b6c4f3   host      host      local
+954ddcef1c88   none      null      local
+
+#网络模式
+bridge  #桥接 docker默认
+none    #不配置网络
+host    #和宿主机上共享网络
+container #容器网络互连
+```
+
+#### 查看桥接模式下的IP
+
+```
+docker network inspect fa733bda04be
+```
+
+#### 查看容器的hosts文件
+
+```bash
+[root@izwz910hz2krcs95fx04b4z ~]# docker exec -it ic03 cat /etc/hosts 
+127.0.0.1       localhost
+::1     localhost ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+172.17.0.3      ic02 ab8d748cb4ba
+172.17.0.4      dfbef6b8ff80
+```
+
+#### 自定义网络
+
+```bash
+docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet
+
+#driver 默认bridge （桥接）
+#subnet 子网掩码 
+#gateway 网关
+```
+
+#### 指定容器使用自定义网络
+
+```
+docker run -d -P --name t1 --net mynet tomcat:9.0
+```
+
+#### 测试网络（ping）
+
+```
+docker exec -it t1 ping t2 #ip地址也是可以的
+```
+
+
+
+
+
+## Docker Compose
+
+Dockerfile build run 手动操作，单个容器
+
+Docker编排
+
+## Compose
+
+- 服务Services，容器，应用
+- 项目。一组关联的容器。博客、mysql
+
+### 安装
+
+下载
+
+```
+curl -L https://get.daocloud.io/docker/compose/releases/download/1.29.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+```
+
+授权
+
+```
+chmod 777 docker-compose
+```
+
+查看版本，出现版本表示下载成功
+
+```
+docker-compose version
+```
+
+### yaml
+
+```bash
+version: '3'
+services:
+  djapp:
+    build: .
+    image: djapp
+    ports:
+      - "81:81"
+  mysql:
+    restart: always
+    image: mysql:5.7
+    container_name: my_mysql
+    volumes:
+      - ./mysql-file/mydir:/mydir
+      - ./mysql-file/datadir:/var/lib/mysql
+      - ./mysql-file/conf/my.cnf:/etc/my.cnf
+      #      数据库还原目录 可将需要还原的sql文件放在这里
+      - /docker/mysql/source:/docker-entrypoint-initdb.d
+    environment:
+      - "MYSQL_ROOT_PASSWORD=1998"
+      - "MYSQL_DATABASE=base"
+    ports:
+      - 3306:3306
+
+```
+
+### Dockerfile
+
+```bash
+FROM java:8
+
+MAINTAINER djttfor
+
+COPY *.jar app.jar
+
+# 运行jar包
+EXPOSE 81
+
+ENTRYPOINT ["java","-jar","/app.jar"]
+```
+
+准备好上面两个文件后，还需要打包好项目成jar，上传到同一个目录上
+
+![image-20210414163107517](docker.assets/image-20210414163107517.png)
+
+### mysql连不上问题
+
+```bash
+#登录上去
+
+(3) 运行下列命令,navicat就可以通过root用户连接mysql了
+  // ALTER USER 'username' IDENTIFIED WITH mysql_native_password BY 'password';
+  $ ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '1998';
+
+```
+
+### 常用命令
+
+首先先打开yaml所在的文件夹下，在该文件夹下输入命令才有效
+
+```bash
+docker-compose up #启动服务，自动帮你构建镜像，帮你启动容器，可以加-d 表示后台运行
+docker-compose down #停止服务，并删除容器
+```
+
+### redis实战
+
+```bash
+#进入客户端
+docker exec -it myredis  redis-cli -h 127.0.0.1 -p 6379 -a 123456 
+```
+
+#### redis.conf
+
+准备好这个文件,事先在**docker-compose.yml**同目录下创建conf/redis.conf
+
+```
+requirepass 123456
+appendonly no
+daemonize no
+
+
+save 300 3
+
+dbfilename dump6379.rdb
+
+rdbcompression yes
+
+rdbchecksum yes
+
+dir /data
+
+maxmemory-policy noeviction
+
+stop-writes-on-bgsave-error yes
+```
+
+#### docker-compose.yml
+
+```
+version: '3'
+services:
+  #redis容器
+  redis:
+    #定义主机名
+    container_name: myredis
+    #使用的镜像
+    image: redis:5.0.2
+    #容器的映射端口
+    ports:
+      - 6379:6379
+    command: redis-server /usr/local/conf/redis.conf
+    #定义挂载点
+    volumes:
+      - ./data:/data
+      - ./conf/redis.conf:/usr/local/conf/redis.conf
+    #环境变量
+    privileged: true
+    environment:
+      - TZ=Asia/Shanghai
+      - LANG=en_US.UTF-8
+```
+

@@ -13,6 +13,8 @@
         <module>ioauth2</module>
         <module>ijwt</module>
         <module>ishiro</module>
+        <module>iswagger</module>
+        <module>ispring_demo1</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

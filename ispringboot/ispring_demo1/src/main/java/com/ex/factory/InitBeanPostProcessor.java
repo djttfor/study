@@ -41,11 +41,11 @@ public class InitBeanPostProcessor implements InstantiationAwareBeanPostProcesso
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
         if (Account.class.isAssignableFrom(beanClass)){
             log.info("实例化前");
-            return beanClass.getConstructor().newInstance();
+            return null;
         }
         return null;
     }
-    //实例化后，返回false停止生命周期，返回true继续生命周期
+    //实例化后
     @Override
     public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
         if(bean instanceof Account){

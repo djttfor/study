@@ -5,9 +5,8 @@ import com.ex.entity.Account;
 import com.ex.mapper.AccountMapper;
 import com.ex.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class AccountServiceImpl implements AccountService {
     @Autowired
     AccountMapper accountMapper;
