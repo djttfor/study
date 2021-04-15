@@ -3,6 +3,8 @@ package com.ex.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ex.entity.Account;
 
+import java.util.List;
+
 /**
  * <p>
  *
@@ -13,4 +15,6 @@ import com.ex.entity.Account;
  */
 public interface AccountService extends IService<Account> {
     boolean transfer(int rid,int tid,Long money);
+
+    List<Account> queryAll();
 }

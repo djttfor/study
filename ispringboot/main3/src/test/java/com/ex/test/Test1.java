@@ -1,5 +1,6 @@
 package com.ex.test;
 
+import com.ex.cache.VisitService;
 import com.ex.entity.Account;
 import com.ex.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,9 @@ public class Test1 {
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
 
+    @Autowired
+    VisitService visitService;
+
     @Test
     public void test1(){
         PasswordEncoder pw = new BCryptPasswordEncoder();
@@ -39,9 +43,17 @@ public class Test1 {
     }
     @Test
     public void test3(){
-        //redisTemplate.opsForValue().set("jimmy","jimmy");
-        System.out.println(redisTemplate.opsForValue().get("b"));
+        List<Account> accounts = accountService.queryAll();
+        for (Account account : accounts) {
+            System.out.println(account);
+        }
     }
 
+    @Test
+    public void test4(){
+        System.out.println(visitService.getVisitCount());
+        visitService.incrementVisitCount("ssss","bbbb");
+        System.out.println(visitService.getVisitCount());
+    }
 
 }

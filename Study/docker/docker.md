@@ -760,6 +760,8 @@ chmod 777 docker-compose
 docker-compose version
 ```
 
+## springboot + mysql 实战
+
 ### yaml
 
 ```bash
@@ -827,7 +829,7 @@ docker-compose up #启动服务，自动帮你构建镜像，帮你启动容器，可以加-d 表示后台运
 docker-compose down #停止服务，并删除容器
 ```
 
-### redis实战
+## redis实战
 
 ```bash
 #进入客户端
@@ -842,8 +844,7 @@ docker exec -it myredis  redis-cli -h 127.0.0.1 -p 6379 -a 123456
 requirepass 123456
 appendonly no
 daemonize no
-
-
+port 6379
 save 300 3
 
 dbfilename dump6379.rdb
@@ -857,6 +858,13 @@ dir /data
 maxmemory-policy noeviction
 
 stop-writes-on-bgsave-error yes
+
+
+pidfile /var/run/redis.pid
+
+loglevel notice
+
+logfile /logs/6379.log
 ```
 
 #### docker-compose.yml
@@ -878,6 +886,59 @@ services:
     volumes:
       - ./data:/data
       - ./conf/redis.conf:/usr/local/conf/redis.conf
+      - ./logs:/logs
+    #环境变量
+    privileged: true
+    environment:
+      - TZ=Asia/Shanghai
+      - LANG=en_US.UTF-8
+```
+
+## springboot + redis + mysql 实战
+
+### docker-compose.yaml
+
+```
+version: '3'
+services:
+  djapp:
+    build: .
+    image: djapp02
+    container_name: djapp02
+    ports:
+      - "81:81"
+    depends_on:
+      - mysql
+      - redis
+  mysql:
+    restart: always
+    image: mysql:5.7
+    container_name: my_mysql
+    volumes:
+      - ./mysql-file/mydir:/mydir
+      - ./mysql-file/datadir:/var/lib/mysql
+      - ./mysql-file/conf/my.cnf:/etc/my.cnf
+      #      数据库还原目录 可将需要还原的sql文件放在这里
+      - /docker/mysql/source:/docker-entrypoint-initdb.d
+    environment:
+      - "MYSQL_ROOT_PASSWORD=1998"
+      - "MYSQL_DATABASE=base"
+    ports:
+      - 3306:3306
+  redis:
+    #定义主机名
+    container_name: myredis
+    #使用的镜像
+    image: redis:5.0.2
+    #容器的映射端口
+    ports:
+      - 6379:6379
+    command: redis-server /usr/local/conf/redis.conf
+    #定义挂载点
+    volumes:
+      - ./redis-file/data:/data
+      - ./redis-file/conf/redis.conf:/usr/local/conf/redis.conf
+      - ./redis-file/logs:/logs
     #环境变量
     privileged: true
     environment:

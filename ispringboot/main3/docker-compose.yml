@@ -1,6 +1,29 @@
 version: '3'
 services:
-  #redis容器
+  djapp:
+    build: .
+    image: djapp02
+    container_name: djapp02
+    ports:
+      - "81:81"
+    depends_on:
+      - mysql
+      - redis
+  mysql:
+    restart: always
+    image: mysql:5.7
+    container_name: my_mysql
+    volumes:
+      - ./mysql-file/mydir:/mydir
+      - ./mysql-file/datadir:/var/lib/mysql
+      - ./mysql-file/conf/my.cnf:/etc/my.cnf
+      #      数据库还原目录 可将需要还原的sql文件放在这里
+      - /docker/mysql/source:/docker-entrypoint-initdb.d
+    environment:
+      - "MYSQL_ROOT_PASSWORD=1998"
+      - "MYSQL_DATABASE=base"
+    ports:
+      - 3306:3306
   redis:
     #定义主机名
     container_name: myredis
@@ -9,11 +32,12 @@ services:
     #容器的映射端口
     ports:
       - 6379:6379
-    command: redis-server /etc/conf/redis.conf
+    command: redis-server /usr/local/conf/redis.conf
     #定义挂载点
     volumes:
-      - ./data:/data
-      - ./conf:/etc/conf
+      - ./redis-file/data:/data
+      - ./redis-file/conf/redis.conf:/usr/local/conf/redis.conf
+      - ./redis-file/logs:/logs
     #环境变量
     privileged: true
     environment:

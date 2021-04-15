@@ -1,5 +1,6 @@
 package com.ex.controller;
 
+import com.ex.cache.VisitService;
 import com.ex.entity.Account;
 import com.ex.entity.Message;
 import com.ex.entity.User;
@@ -24,6 +25,9 @@ public class UserController {
 
     @Autowired
     AccountService accountService;
+
+    @Autowired
+    VisitService visitService;
 
 
     @PreAuthorize("hasRole('v2')")
@@ -79,8 +83,13 @@ public class UserController {
     @RequestMapping("/all")
     @ResponseBody
     public List<Account> all(){
-        return accountService.list();
+        return accountService.queryAll();
     }
 
+    @RequestMapping("/getVisitCount")
+    @ResponseBody
+    public Long getVisitCount(){
+        return visitService.getVisitCount();
+    }
 }
 
