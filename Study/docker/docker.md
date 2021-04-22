@@ -946,3 +946,26 @@ services:
       - LANG=en_US.UTF-8
 ```
 
+## 解决docker容器里没有vim的问题
+
+```
+apt-get update
+apt-get install vim
+```
+
+## 解决ll不能使用的问题
+
+```bash
+#临时
+alias ll='ls -l'
+
+#一直
+vim  ~/.bashrc
+#输入
+alias ll='ls -l'
+#使生效
+source ~/.bashrc
+```
+
+
+

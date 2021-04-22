@@ -15,6 +15,10 @@
         <module>ishiro</module>
         <module>iswagger</module>
         <module>ispring_demo1</module>
+        <module>rabbitmq_01</module>
+        <module>rabbitmq_02</module>
+        <module>rabbitmq_cs</module>
+        <module>rabbitmq_cs</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

@@ -888,7 +888,7 @@ public interface UserMapper {
 
 ### yaml配置
 
-```xml
+```yaml
 mybatis-plus:
   mapper-locations: classpath:mybatis/mapper/*.xml
   configuration:
@@ -1549,87 +1549,197 @@ http.logout()
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
+            <version>0.9.0</version>
         </dependency>
 ```
 
-#### 生成token
+
+
+
+
+#### JwtTokenUtil
 
 ```java
- @Test
-    public void test1(){
-        JwtBuilder jwtBuilder = Jwts.builder()
-                //唯一id
-                .setId("666")
-                //接受的用户
-                .setSubject("Van")
-                //签发时间
-                .setIssuedAt(new Date())
-                //签名及密钥
-                .signWith(SignatureAlgorithm.HS256,"The deep dark fantasy");
+@Slf4j
+@Component
+public class JwtTokenUtil {
+    private static final String CLAIM_KEY_USERNAME = "sub";
+    private static final String CLAIM_KEY_CREATED = "created";
 
-        String token = jwtBuilder.compact();
-        log.info("token:{}",token);
-        log.info("-------------令牌解析----------------");
-        String[] split = token.split("\\.");
-        log.info("第一部分：{}", new String(Base64Codec.BASE64.decode(split[0])));
-        log.info("第二部分：{}", new String(Base64Codec.BASE64.decode(split[1])));
-        log.info("第三部分：{}", new String(Base64Codec.BASE64.decode(split[2])));
+    @Value("${jwt.secret}")
+    private String secret ;
+
+    @Value("${jwt.expiration}")
+    private Long expiration;
+
+    /**
+     * 生成token
+     * @param claims
+     * @param expiration 过期时间，单位是秒
+     * @return
+     */
+    public String generateToken(Map<String,Object> claims,Long expiration){
+        return Jwts.builder().setClaims(claims)
+                .setExpiration(IDateUtil.generateDefaultTokenExpiration(expiration))//也是一个claims，key为exp
+                .signWith(SignatureAlgorithm.HS256,secret)//设置加密方式和密钥
+                .compact();
     }
-```
 
-#### 解析token
-
-```java
- @Test
-    public void test2(){
-        String s = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2NjYiLCJzdWIiOiJWYW4iLCJpYXQiOjE2MTcxNzk3MTZ9.dkRgtVuaeEjyBqc5gtt5Teg98_Cv-mUsFSCNQG8EXh8";
-        Claims claims = (Claims) Jwts.parser().setSigningKey("The deep dark fantasy").parse(s).getBody();
-        log.info("id:{}",claims.getId());
-        log.info("创建时间:{}",claims.getIssuedAt());
-        log.info("用户:{}",claims.getSubject());
+    /**
+     * 生成用户的token
+     * @param userDetails
+     * @return
+     */
+    public String generateUsernameToken(UserDetails userDetails){
+        Map<String,Object> claims = new HashMap<>(16);
+        claims.put(CLAIM_KEY_CREATED,new Date());//设置创建时间
+        claims.put(CLAIM_KEY_USERNAME,userDetails.getUsername());
+        return generateToken(claims,expiration);
     }
-```
 
-#### token过期校验
-
-过期的token，解析会抛出异常
-
-```java
- @Test
-    public void test1(){
-        long date = System.currentTimeMillis();
-        long exp = date + 60 * 1000;
-        JwtBuilder jwtBuilder = Jwts.builder()
-                //唯一id
-                .setId("666")
-                //接受的用户
-                .setSubject("Vans")
-                //签发时间
-                .setIssuedAt(new Date())
-                //设置失效时间
-                .setExpiration(new Date(exp))
-                //签名及密钥
-                .signWith(SignatureAlgorithm.HS256,"The deep dark fantasy");
-
-        String token = jwtBuilder.compact();
-        log.info("token:{}",token);
-        log.info("-------------令牌解析----------------");
-        String[] split = token.split("\\.");
-        log.info("第一部分：{}", new String(Base64Codec.BASE64.decode(split[0])));
-        log.info("第二部分：{}", new String(Base64Codec.BASE64.decode(split[1])));
-        log.info("第三部分：{}", new String(Base64Codec.BASE64.decode(split[2])));
+    /**
+     * 从token中获取用户名
+     * @param token
+     * @return
+     */
+    public String getUsernameByToken(String token){
+        Claims claims = parseToken(token);
+        String username = null;
+        if(claims!=null){
+            username = claims.getSubject();
+        }
+        return username;
     }
-```
 
-#### 自定义Claims
+    /**
+     * 解析token
+     * @param token
+     * @return
+     */
+    public Claims parseToken(String token){
+        Claims claims = null;
+        try {
+            claims = Jwts.parser().setSigningKey(secret)
+                    .parseClaimsJws(token).getBody();
+        } catch (Exception e) {
+            log.error("出现了异常：{}",CommonUtil.getThrowableMessage(e));
+        }
+        return claims;
+    }
 
-```java
-.claim("name","jimmy")
-.claim("ass","hole")//自定义
-    
-log.info("name:{}",claims.get("name"));
-log.info("ass:{}",claims.get("ass"));//获取
+    /**
+     * 验证token是否有效
+     * @param token
+     * @return true表示有效，false表示已过期或者解析错误
+     */
+    public boolean isTokenValid(String token){
+        return null != parseToken(token);
+    }
+
+    /**
+     * 刷新已经过期的token
+     * @param token
+     * @return
+     */
+    public String refreshToken(String token){
+        try {
+            Claims claims = getTokenBody(token);
+            claims.put(CLAIM_KEY_CREATED,new Date());
+            return generateToken(claims,expiration);
+        } catch (JsonProcessingException e) {
+            log.error("解析token出错，请检查：{}",token);
+        }
+        return null;
+    }
+
+    /**
+     * 从源码拷贝过来的，只用于解析token获取Claims，无论过没过期
+     * @param jwt token
+     * @return
+     */
+    public Claims getTokenBody(String jwt) throws JsonProcessingException {
+        Assert.hasText(jwt, "JWT String argument cannot be null or empty.");
+
+        String base64UrlEncodedHeader = null;
+        String base64UrlEncodedPayload = null;
+        String base64UrlEncodedDigest = null;
+
+        int delimiterCount = 0;
+
+        StringBuilder sb = new StringBuilder(128);
+
+        for (char c : jwt.toCharArray()) {
+
+            if (c == '.') {
+
+                CharSequence tokenSeq = Strings.clean(sb);
+                String token = tokenSeq!=null?tokenSeq.toString():null;
+
+                if (delimiterCount == 0) {
+                    base64UrlEncodedHeader = token;
+                } else if (delimiterCount == 1) {
+                    base64UrlEncodedPayload = token;
+                }
+
+                delimiterCount++;
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+
+        if (delimiterCount != 2) {
+            String msg = "JWT strings must contain exactly 2 period characters. Found: " + delimiterCount;
+            throw new MalformedJwtException(msg);
+        }
+        if (sb.length() > 0) {
+            base64UrlEncodedDigest = sb.toString();
+        }
+
+        if (base64UrlEncodedPayload == null) {
+            throw new MalformedJwtException("JWT string '" + jwt + "' is missing a body/payload.");
+        }
+
+        // =============== Header =================
+        Header header = null;
+
+        CompressionCodec compressionCodec = null;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        if (base64UrlEncodedHeader != null) {
+            String origValue = TextCodec.BASE64URL.decodeToString(base64UrlEncodedHeader);
+            Map<String, Object> m = objectMapper.readValue(origValue, Map.class);
+
+            if (base64UrlEncodedDigest != null) {
+                header = new DefaultJwsHeader(m);
+            } else {
+                header = new DefaultHeader(m);
+            }
+
+            compressionCodec = new DefaultCompressionCodecResolver().resolveCompressionCodec(header);
+        }
+
+        // =============== Body =================
+        String payload;
+        if (compressionCodec != null) {
+            byte[] decompressed = compressionCodec.decompress(TextCodec.BASE64URL.decode(base64UrlEncodedPayload));
+            payload = new String(decompressed, Strings.UTF_8);
+        } else {
+            payload = TextCodec.BASE64URL.decodeToString(base64UrlEncodedPayload);
+        }
+
+        Claims claims = null;
+
+        if (payload.charAt(0) == '{' && payload.charAt(payload.length() - 1) == '}') { //likely to be json, parse it:
+            Map<String, Object> claimsMap = objectMapper.readValue(payload,Map.class);
+            claims = new DefaultClaims(claimsMap);
+        }
+
+        return claims;
+    }
+
+}
 ```
 
 ## 整合Shiro

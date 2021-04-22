@@ -3,9 +3,9 @@ package com.ex.entity;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.sql.Date;
 
 /**
@@ -21,7 +21,6 @@ import java.sql.Date;
 public class Account implements InitializingBean {
     private Integer id;
 
-    @Value("aaa")
     private String accountName;
 
     private String password;
@@ -32,6 +31,9 @@ public class Account implements InitializingBean {
 
     private Integer uid;
 
+    public Account() {
+        log.info("Account的构造方法执行了");
+    }
 
     public void setId(Integer id){
          this.id = id;
@@ -102,5 +104,11 @@ public class Account implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         log.info("account:{}",this);
+    }
+
+    @PostConstruct
+    public void pc(){
+        this.accountName = "123456";
+        log.info("Account的PC方法执行了");
     }
 }

@@ -298,6 +298,37 @@ select(Class<T> entityClass, Predicate<TableFieldInfo> predicate)
             <artifactId>mybatis-plus</artifactId>
             <version>3.4.2</version>
         </dependency>
+<!--log4j2-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.13.3</version>
+        </dependency>
+```
+
+xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="debug" monitorInterval="30">
+    <!-- 先定义所有的appender(附加器)-->
+    <appenders>
+        <!-- 输出控制台的配置 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- 控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- 输出日志的格式 -->
+            <PatternLayout pattern="[%d{HH:mm:ss.SSS}] [%-5p] %l - %m%n"/>
+        </Console>
+    </appenders>
+
+    <loggers>
+        <root level="debug">
+            <appender-ref ref="Console"/>
+        </root>
+    </loggers>
+
+</configuration>
 ```
 
 代码
@@ -310,18 +341,21 @@ public class CodeGenerator {
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setOutputDir("D:\\Java\\study\\smp_01\\src\\main\\java");
+        gc.setOutputDir("F:\\Java\\iyeb\\generator\\src\\main\\java");
         gc.setAuthor("ttfor");
         gc.setFileOverride(false);// 是否覆盖同名文件，默认是false
-        gc.setActiveRecord(true);// 不需要ActiveRecord特性的请改为false
+        gc.setActiveRecord(false);// 不需要ActiveRecord特性的请改为false
         gc.setEnableCache(false);// XML 二级缓存
-        gc.setBaseResultMap(true);// XML ResultMap
+        gc.setBaseResultMap(false);// XML ResultMap
         gc.setBaseColumnList(false);// XML columList
+        gc.setServiceName("%sService");
+
+
         mpg.setGlobalConfig(gc);
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://localhost:3306/base?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://localhost:3306/iyeb?useUnicode=true&useSSL=false&characterEncoding=utf8");
         // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("root");
@@ -330,19 +364,20 @@ public class CodeGenerator {
 
         // 包配置
         PackageConfig pc = new PackageConfig();
-       // pc.setModuleName(scanner("smp_01"));
-        pc.setParent("com.ex.smp");
+        // pc.setModuleName(scanner("smp_01"));
+        pc.setParent("com.ex.server");
         mpg.setPackageInfo(pc);
 
         // 策略配置
         StrategyConfig strategy = new StrategyConfig();
         // strategy.setCapitalMode(true);// 全局大写命名 ORACLE 注意
-        //strategy.setTablePrefix(new String[] { "user_" });// 此处可以修改为您的表前缀
+        strategy.setTablePrefix("t_");// 去除表前缀
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-        strategy.setInclude(new String[] { "user","account" }); // 需要生成的表
-         mpg.setStrategy(strategy);
+        //strategy.setInclude("user","account"); // 需要生成的表
+        strategy.setEntityLombokModel(true);
+        mpg.setStrategy(strategy);
         mpg.execute();
     }
 }
-```
 
+```

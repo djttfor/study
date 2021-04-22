@@ -986,3 +986,38 @@ npm install
 npm run dev
 ```
 
+## export和export default的区别
+
+在ES6中，export与export default均可用于导出常量、函数、文件、模块等，你可以在其它文件或模块中通过`import+(常量 | 函数 | 文件 | 模块)名`的方式，将其导入，以便能够对其进行使用，但在一个文件或模块中，export、import可以有多个，export default仅有一个。
+
+### export的使用
+
+```js
+//demo1.js
+export const str = 'hello world'
+ 
+export function f(a){
+    return a+1
+}
+```
+
+### export的导入
+
+```js
+//demo2.js
+import { str, f } from 'demo1' //也可以分开写两次，导入的时候带花括号
+```
+
+### export default的使用
+
+```js
+//demo3.js
+export default const str = 'hello world'
+```
+
+### export default的导入
+
+```js
+import str from 'demo1' //导入的时候没有花括号
+```
+
