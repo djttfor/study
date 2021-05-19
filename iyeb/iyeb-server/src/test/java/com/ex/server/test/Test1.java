@@ -1,5 +1,7 @@
 package com.ex.server.test;
 
+import com.ex.server.constant.IConstant;
+import com.ex.server.dto.LoginParam;
 import com.ex.server.entity.*;
 import com.ex.server.service.*;
 
@@ -12,11 +14,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 public class Test1 {
@@ -37,6 +44,12 @@ public class Test1 {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    RedisTemplate<String,Object> redisTemplate;
+
     @Test
     public void test1(){
         List<Admin> list = adminService.list();
@@ -55,19 +68,30 @@ public class Test1 {
 
     @Test
     public void test3(){
-
+        System.out.println(adminService.selectAdminByName("安娜"));
     }
     @Test
     public void test4(){
-//        String s = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaW1teSIsImNyZWF0ZWQiOjE2MTkwNTM0OTM2MDEsImV4cCI6MTYxOTY1ODMzM30.5IpwgxrYkmQGMEBnGO2Lk7s7XeYsjcOV-vJfKt3tx98";
-//        Claims claims = jwtTokenUtil.parseToken(s);
-//        System.out.println(claims.getSubject());
+        //生成token
+        Map<String,Object> claims = new HashMap<>();
+        claims.put(IConstant.VERIFY_CODE,"4F5c");
+        String token = jwtTokenUtil.generateToken(claims, IConstant.DEFAULT_TIMEOUT);
+        redisTemplate.opsForValue().set(token,"4F5c",IConstant.REDIS_DEFAULT_EXPIRED,TimeUnit.SECONDS);
+        System.out.println(redisTemplate.opsForValue().get(token));
+    }
+    @Test
+    public void test5(){
+        List<Admin> admins = adminService.queryAll();
+        for (Admin admin : admins) {
+            System.out.println(admin);
+        }
     }
 
 }
 
 class A{
     public static void main(String[] args) throws JsonProcessingException {
-
+        LoginParam loginParam = new LoginParam();
+        System.out.println(loginParam.getUsername());
     }
 }

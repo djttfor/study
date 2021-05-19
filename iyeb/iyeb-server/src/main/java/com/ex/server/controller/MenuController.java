@@ -1,9 +1,18 @@
 package com.ex.server.controller;
 
 
+import com.ex.server.dto.ResponseBean;
+import com.ex.server.entity.Menu;
+import com.ex.server.service.MenuService;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,9 +22,22 @@ import org.springframework.stereotype.Controller;
  * @author ttfor
  * @since 2021-04-21
  */
-@Controller
-@RequestMapping("/menu")
+@RestController
+@RequestMapping("/sys/config/menu")
 public class MenuController {
+    @Autowired
+    MenuService menuService;
 
+    @ApiOperation(value = "根据用户id查询菜单列表")
+    @GetMapping("/menu")
+    public List<Menu> getMenuByAdminId(){
+        return menuService.getMenuByAdminId();
+    }
+
+    @ApiOperation(value = "查询所有菜单并分类")
+    @GetMapping("/getAll")
+    public ResponseBean getMenuSorted(){
+        return ResponseBean.success(menuService.getMenuSorted());
+    }
 }
 

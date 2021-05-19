@@ -2,6 +2,9 @@ package com.ex.server.service;
 
 import com.ex.server.entity.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface RoleService extends IService<Role> {
 
+    Role getRoleByAdminId(int aid);
+
+    List<Integer> getMenuIdByRid(@Param("rid") Integer rid);
 }

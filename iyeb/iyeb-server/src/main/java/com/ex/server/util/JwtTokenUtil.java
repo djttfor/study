@@ -1,5 +1,6 @@
 package com.ex.server.util;
 
+import com.ex.server.constant.IConstant;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -42,6 +43,18 @@ public class JwtTokenUtil {
                 .setExpiration(IDateUtil.generateDefaultTokenExpiration(expiration))//也是一个claims，key为exp
                 .signWith(SignatureAlgorithm.HS256,secret)//设置加密方式和密钥
                 .compact();
+    }
+
+    /**
+     * 生成验证码的令牌
+     * @param text
+     * @return
+     */
+    public String generateValidateCodeToken(String text){
+        Map<String,Object> claims = new HashMap<>(16);
+        claims.put(CLAIM_KEY_CREATED,new Date());//设置创建时间
+        claims.put(IConstant.VERIFY_CODE,text);
+        return generateToken(claims,expiration);
     }
 
     /**

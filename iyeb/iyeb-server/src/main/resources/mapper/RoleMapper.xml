@@ -2,4 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ex.server.mapper.RoleMapper">
 
+    <resultMap id="getRoleByAdminId" type="Role">
+        <id property="id" column="roleId"/>
+        <result property="code" column="roleCode"/>
+        <result property="name" column="roleName"/>
+    </resultMap>
+
+    <select id="getRoleByAdminId" resultMap="getRoleByAdminId">
+        select
+            r.id roleId,r.name roleName,r.`code` roleCode
+        from
+            t_admin_role ar
+                inner join
+            t_role r on ar.rid = r.id
+        where ar.aid = #{aid}
+    </select>
+
+
+    <select id="getMenuIdByRid" resultType="java.lang.Integer">
+        select
+            m.id
+        from
+            t_menu m
+                INNER JOIN
+            t_menu_role mr on m.id = mr.mid
+        where mr.rid = #{rid}
+    </select>
 </mapper>

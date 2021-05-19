@@ -1,16 +1,20 @@
 package com.ex.server.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.Collection;
+
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author ttfor
@@ -19,7 +23,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("t_admin")
-public class Admin implements Serializable {
+public class Admin implements Serializable,UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -49,9 +53,11 @@ public class Admin implements Serializable {
      */
     private String address;
 
+
     /**
      * 是否启用
      */
+    @Getter(value = AccessLevel.NONE)
     private Boolean enabled;
 
     /**
@@ -77,6 +83,7 @@ public class Admin implements Serializable {
     /**
      * 创建时间
      */
+
     private LocalDateTime gmtCreate;
 
     /**
@@ -89,5 +96,34 @@ public class Admin implements Serializable {
      */
     private String remark;
 
+    /**
+     * 角色名称
+     */
+    @TableField(exist = false)
+    private String roleCode;
 
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

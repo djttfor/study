@@ -1,15 +1,18 @@
 package com.ex.server.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author ttfor
@@ -41,7 +44,7 @@ public class Menu implements Serializable {
     /**
      * 组件名称
      */
-    private String component;
+    private String componentName;
 
     /**
      * 菜单名称
@@ -73,5 +76,9 @@ public class Menu implements Serializable {
      */
     private Boolean enabled;
 
-
+    /**
+     * 子菜单
+     */
+    @TableField(exist = false)
+    private List<Menu> children;
 }
