@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,16 +23,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     UserDetailsService userDetailsService;
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/user/all");
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
         //授权
-        http.authorizeRequests().antMatchers("/","/css/**","/js/**","/error/**").permitAll()
+        http
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
+                .authorizeRequests().antMatchers("/","/css/**","/js/**","/error/**").permitAll()
                 .antMatchers("/user/login/**").permitAll()
-                .antMatchers("/user/all").permitAll()
                 .antMatchers("/user/getVisitCount").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/user/login/page")
+
+
                 //.loginProcessingUrl()
                 .successHandler((httpServletRequest, httpServletResponse, authentication) -> {
                     httpServletResponse.setContentType("application/json;charset=utf-8");
@@ -79,5 +89,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //       // jdbcTokenRepository.setCreateTableOnStartup(true);
 //
 //        return jdbcTokenRepository;
+//    }
+//    @Bean
+//    public FilterRegistrationBean<IFilter> buildFilter(){
+//        FilterRegistrationBean<IFilter> filter = new FilterRegistrationBean<>();
+//        filter.setFilter(new IFilter());
+//        filter.setOrder(Integer.MIN_VALUE);
+//        filter.setName("IFilter");
+//        filter.addUrlPatterns("/*");
+//        return filter;
 //    }
 }

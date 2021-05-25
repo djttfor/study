@@ -1,15 +1,19 @@
 package com.ex.server.test;
 
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ex.server.dto.IAuth;
 import com.ex.server.entity.Admin;
+import com.ex.server.entity.Department;
 import com.ex.server.entity.Menu;
 import com.ex.server.entity.Role;
 import com.ex.server.mapper.MenuMapper;
 import com.ex.server.mapper.RoleMapper;
 import com.ex.server.service.AdminService;
+import com.ex.server.service.DepartmentService;
 import com.ex.server.service.MenuService;
+import com.ex.server.service.RoleService;
 import com.ex.server.util.JwtTokenUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +48,12 @@ public class Test2 {
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
+
+    @Autowired
+    RoleService roleService;
+
+    @Autowired
+    DepartmentService departmentService;
 
 
     @Test
@@ -93,18 +103,52 @@ public class Test2 {
 
     @Test
     public void test6(){
-        List<Integer> menuIdByRid = roleMapper.getMenuIdByRid(1);
-        for (Integer integer : menuIdByRid) {
-            System.out.println(integer);
+        List<Menu> menus = menuService.list(
+                Wrappers.lambdaQuery(Menu.class)
+                        .select(s -> "id".equals(s.getProperty()) ||
+                                "parentId".equals(s.getProperty()) ||
+                                "path".equals(s.getProperty()) ||
+                                "name".equals(s.getProperty())
+                        ));
+
+        Menu menu = findChild(menus, menus.get(0));
+        System.out.println(menu);
+    }
+    public Menu findChild(List<Menu> menus,Menu parentMenu){
+        for (Menu menu : menus) {
+            //匹配子节点
+            if (menu.getParentId().equals(parentMenu.getId())) {
+                //将子节点添加到父节点中
+                if (parentMenu.getChildren()==null) {
+                    parentMenu.setChildren(new ArrayList<>());
+                }
+                parentMenu.getChildren().add(menu);
+                //子节点查找自己的子节点
+                findChild(menus,menu);
+            }
+        }
+        return parentMenu;
+    }
+
+    @Test
+    public void test7(){
+        List<Admin> admins = adminService.selectAll();
+        for (Admin admin : admins) {
+            System.out.println(admin);
         }
     }
+
+
+
 }
 class B{
-    public static void main(String[] args) throws JsonProcessingException {
-        List<String> excludeList = Arrays.asList("/sys/config");
-        System.out.println(excludeList.stream().noneMatch("/sys/config/getAll"::startsWith));
+    public static Integer parseInt(String s) {
+        return (s == null) ?
+                 null : Integer.parseInt(s);
     }
-    public static void test10(List<String> list){
-
+    public static void main(String[] args) {
+        System.out.println(parseInt("-1") + " " +
+                parseInt(null) + " " +
+                parseInt("1"));
     }
 }

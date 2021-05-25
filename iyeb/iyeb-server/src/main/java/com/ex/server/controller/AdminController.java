@@ -1,9 +1,11 @@
 package com.ex.server.controller;
 
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ex.server.dto.IAuth;
 import com.ex.server.dto.ResponseBean;
 import com.ex.server.entity.Admin;
+import com.ex.server.entity.Role;
 import com.ex.server.service.AdminService;
 import com.ex.server.util.CommonUtil;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -33,11 +36,6 @@ public class AdminController {
 
     @Autowired
     RedisTemplate<String,Object> redisTemplate;
-
-    @GetMapping("/all")
-    public List<Admin> queryAll(){
-        return adminService.queryAll();
-    }
 
     @ApiOperation(value = "分页查询用户信息")
     @GetMapping("/page/{current}/{pageSize}")
@@ -71,6 +69,27 @@ public class AdminController {
         admin.setPassword(null);//防止密码泄露
         admin.setRoleCode(CommonUtil.getUnprefixedRoleName(iAuth.getRoleCode()));
         return ResponseBean.success(admin);
+    }
+
+    @ApiOperation(value = "查询所有用户信息，不分页")
+    @GetMapping("/all")
+    public ResponseBean getAll(){
+        return ResponseBean.success(adminService.selectAll());
+    }
+
+    @ApiOperation(value = "启用或停用账户")
+    @PostMapping("/switchStatus")
+    public ResponseBean switchStatus(@RequestBody Map<String,Object> map){
+        Object id = map.get("id");
+        Object enabled = map.get("enabled");
+        if(id==null || enabled==null){
+            return ResponseBean.fail("更新状态失败");
+        }
+        boolean update = adminService.update(Wrappers.lambdaUpdate(Admin.class).set(Admin::isEnabled, enabled).eq(Admin::getId, id));
+        if(!update){
+            return ResponseBean.fail("更新状态失败");
+        }
+        return ResponseBean.success("更新状态成功");
     }
 
 }

@@ -34,10 +34,10 @@ public class MenuController {
         return menuService.getMenuByAdminId();
     }
 
-    @ApiOperation(value = "查询所有菜单并分类")
+    @ApiOperation(value = "查询所有菜单")
     @GetMapping("/getAll")
-    public ResponseBean getMenuSorted(){
-        return ResponseBean.success(menuService.getMenuSorted());
+    public ResponseBean getAllMenu(){
+        return ResponseBean.success(menuService.getAllMenu());
     }
 }
 

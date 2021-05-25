@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -101,6 +102,12 @@ public class Admin implements Serializable,UserDetails {
      */
     @TableField(exist = false)
     private String roleCode;
+
+    /**
+     * 角色集合
+     */
+    @TableField(exist = false)
+    private List<Role> roles;
 
 
     @Override

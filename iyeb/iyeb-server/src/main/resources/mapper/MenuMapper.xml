@@ -41,6 +41,7 @@
 
     </select>
 
+
     <resultMap id="getMenuByRoleId" type="menu">
         <id property="id" column="menuId"/>
         <result property="path" column="menuPath"/>
@@ -75,6 +76,7 @@
                 INNER JOIN
             t_menu m2 on m1.id = m2.parent_id
     </select>
+
 
 
 </mapper>

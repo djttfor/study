@@ -829,7 +829,6 @@ public class DruidConfig {
             <appender-ref ref="Console"/>
         </root>
     </loggers>
-
 </configuration>
 ```
 
@@ -1975,3 +1974,10 @@ public class Swagger2Config {
 @ApiImplicitParam：描述一个请求参数，可以配置参数的中文含义，还可以给参数设置默认值
 
 @ApiImplicitParams：描述由多个 @ApiImplicitParam 注解的参数组成的请求参数列表
+
+```
+BearereyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImNyZWF0ZWQiOjE2MjA2MTMxMjkxMjYsImV4cCI6MTYyMTIxNzkyOX0.QyB9ff85J1UdzUxHBmveB6x8vIeK9jiJxtslT-QG8p0
+
+Authorization:
+```
+

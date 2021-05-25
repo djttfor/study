@@ -20,4 +20,6 @@ public interface MenuService extends IService<Menu> {
     List<Menu> getMenuByRoleId(int id);
 
     List<Menu> getMenuSorted();
+
+    Menu getAllMenu();
 }

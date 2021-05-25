@@ -228,3 +228,9 @@ public static String getExceptionMessage2(Throwable throwable){//字节流
         }
     }
 ```
+
+### NIO
+
+![image-20210428203607623](BIO与字符编码.assets/image-20210428203607623.png)
+
+![image-20210428213811920](BIO与字符编码.assets/image-20210428213811920.png)

@@ -1477,3 +1477,22 @@ sentinel auth-pass mymaster 123456
 布隆过滤器是一种数据结构，对所有可能查询的参数以hash形式存储，在控制层先进行校验，不符合则丢弃，从而避免了对底层存储系统的查询压力
 
 ![image-20210327053542057](redis.assets/image-20210327053542057.png)
+
+## 线上修改Redis配置
+
+### 1.获取
+
+```bash
+#获取全部redis配置
+config get *
+#获取指定配置，如获取连接空闲多久后关闭的设置
+config get tcp-keepalive #这个默认是60秒
+```
+
+### 2.设置
+
+```bash
+#设置空闲连接超时时间关闭
+config set tcp-keepalive 60
+```
+

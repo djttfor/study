@@ -184,7 +184,7 @@ tomcat架构俯视图
 
   valve 阀门 如果想自己定义阀门，只需继承RequestFilterValve即可
 
-### FilterChain
+## FilterChain
 
 ```java
 /*
@@ -257,3 +257,29 @@ private static boolean matchFiltersURL(String testPath, String requestPath) {
 -Dfile.encoding=UTF-8   //IDEA-> Help -> Edit Custom VM Options添加
 java.util.logging.ConsoleHandler.encoding = UTF-8   //tomcat安装目录/conf/logging/修改为UTF-8
 ```
+
+## 生产SessionID
+
+生产sessionId调用的方法
+
+```
+org.apache.catalina.util.StandardSessionIdGenerator#generateSessionId(null)
+```
+
+## Session的生成
+
+session是HttpServletRequest的字段
+
+### 1.如果不存在Session
+
+> 那么会在第一次通过request.getSession(boolean create),如果create为true则创建一个会话，并将SessionID存入Key为JSESSIONID的Cookie中
+
+
+
+### 2.如果每次请求能从Cookie中获取到SessionID
+
+>那么会在内部的ConcurrentHashMap中获取Session，地点在ManagerBase的742行
+
+### 3.SessionID
+
+> SessionId是在第一次通过**request.getSession(true)**的执行中生成的

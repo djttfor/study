@@ -74,6 +74,9 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     @Autowired
     MenuService menuService;
 
+    @Autowired
+    AdminMapper adminMapper;
+
 
     @Override
     @Transactional
@@ -185,6 +188,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         //admin.setGmtCreate(LocalDateTime.now());
         //admin.setTelephone("10086");
         save(admin);
+    }
+
+    @Override
+    public List<Admin> selectAll() {
+        return adminMapper.selectAll();
     }
 
 

@@ -29,4 +29,6 @@ public interface AdminService extends IService<Admin> {
     Page<Admin> pageQuery(int current, int pageSize);
 
     void test();
+
+    List<Admin> selectAll();
 }

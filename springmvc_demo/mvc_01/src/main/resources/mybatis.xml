@@ -4,7 +4,7 @@
     <properties resource="druid.properties">
     </properties>
 <!--    <settings>-->
-<!--&lt;!&ndash;        <setting name="cacheEnabled" value="true"/>&ndash;&gt;-->
+<!--        <setting name="cacheEnabled" value="true"/>-->
 <!--        <setting name="localCacheScope" value="STATEMENT"/>-->
 
 <!--    </settings>-->

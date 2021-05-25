@@ -1,7 +1,3 @@
-# mysql
-
-## 杂项
-
 ### 1.主键自增(auto_increment)的问题
 
 指定自增的列必须有有索引,一张表最多有一列自增
@@ -105,4 +101,30 @@ end $$
 #函数的调用
 select batch_insert(20);
 ```
+
+### [问题记录] group by错误问题
+
+执行下面语句的时候出现错误
+
+```mysql
+SELECT       DATE_FORMAT( create_time, "%Y-%m-01 00:00:00" ) archiveDate,         COUNT(*) articleTotal       FROM         plumemo_posts       GROUP BY DATE_FORMAT( create_time, "%Y-%m-01 00:00:00" )       ORDER BY id DESC
+```
+
+错误如下
+
+```
+Cause: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Expression #1 of ORDER BY clause is not in GROUP BY clause and contains nonaggregated column 'hello_blog.plumemo_posts.id' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+```
+
+直接百度，输入mysql控制台执行以下语句即可解决
+
+```mysql
+#会话级别
+set @@sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+
+#全局级别，需要重新启动项目
+set @@GLOBAL.sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+```
+
+
 

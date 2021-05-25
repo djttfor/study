@@ -1,5 +1,6 @@
 package com.ex.server.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ex.server.entity.Admin;
 import com.ex.server.entity.Menu;
 import com.ex.server.exception.MyException;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +52,40 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     @Override
     public List<Menu> getMenuSorted() {
         return menuMapper.getMenuSorted();
+    }
+
+    @Override
+    public Menu getAllMenu() {
+        List<Menu> menus = list(
+                Wrappers.lambdaQuery(Menu.class)
+                        .select(s -> "id".equals(s.getProperty()) ||
+                                "parentId".equals(s.getProperty()) ||
+                                "path".equals(s.getProperty()) ||
+                                "name".equals(s.getProperty())
+                        ));
+        return findChild(menus, menus.get(0));
+    }
+
+    /**
+     * 递归获取所有子菜单
+     * @param menus
+     * @param parentMenu
+     * @return
+     */
+    public Menu findChild(List<Menu> menus,Menu parentMenu){
+        for (Menu menu : menus) {
+            //匹配子节点
+            if (menu.getParentId().equals(parentMenu.getId())) {
+                //将子节点添加到父节点中
+                if (parentMenu.getChildren()==null) {
+                    parentMenu.setChildren(new ArrayList<>());
+                }
+                parentMenu.getChildren().add(menu);
+                //子节点查找自己的子节点
+                findChild(menus,menu);
+            }
+        }
+        return parentMenu;
     }
 
     @Override

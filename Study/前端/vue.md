@@ -886,6 +886,15 @@ public class CrosInterceptor implements HandlerInterceptor {
         return true;
     }
 }
+//springboot的配置
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new CrosInterceptor())
+                .addPathPatterns("/**");
+    }
+}
 /*
 spring-mvc.xml 拦截器配置
 <mvc:interceptors>    
@@ -1020,4 +1029,235 @@ export default const str = 'hello world'
 ```js
 import str from 'demo1' //导入的时候没有花括号
 ```
+
+## vueX
+
+### 安装
+
+```
+npm install vuex --save
+```
+
+### 配置
+
+在src下创建store文件夹添加index.js
+
+```js
+import Vue from "vue";
+import Vuex from "vuex";
+
+Vue.use(Vuex)
+
+const store =  new Vuex.Store({
+    //想放什么类型写什么类型，
+  state:{
+    routes:[],
+    count:0,
+    flag:false
+  },
+    //监听数值变化
+  getters:{
+    getCount:state => state.count,
+    getFlag:state => state.flag
+  },
+    //通过this.$store.commit('方法名'，参数)来调用下面的方法
+  mutations:{
+    initRoutes(state,data){
+      state.routes = data;
+    },
+      //调用方法时不用传state，直接传后面的参数
+    countIncrement(state,num){
+      state.count+=num;
+    },
+    countDecrement(){
+      this.state.count--;
+    },
+    reverseFlag(){
+      this.state.flag = !this.state.flag;
+    }
+  },
+
+    //通过这个调用mutations的方法，使用时用this.$store.dispatch('方法名'，参数)来调用
+  actions:{
+    getAddCount:(context,num)=>{context.commit('countIncrement',num)}
+  }
+})
+
+export default store
+```
+
+### html
+
+```html
+  <div>
+             <h1>从state上拿到的{{this.$store.state.count}}</h1>
+             <h1>从state上拿到的{{this.$store.state.flag}}</h1>
+             <h1>从getters上拿到的{{this.$store.getters.getCount}}</h1>
+             <h1>从getters上拿到的{{this.$store.getters.getFlag}}</h1>
+             <input type="text" v-model="numb"></input>
+             <button @click="countIncrement(numb)">+</button><button @click="countDecrement">-</button>
+             <router-view/>
+           </div>
+```
+
+### method
+
+```js
+methods:{
+    countIncrement(num){
+      this.$store.commit('countIncrement',parseInt(num))
+      this.reverseFlag()
+    },
+    countDecrement(){
+      this.$store.commit('countDecrement');
+    },
+    reverseFlag() {
+      this.$store.commit('reverseFlag');
+    },
+    actionTest(num){
+      this.$store.dispatch('getAddCount',parseInt(num))
+    }
+  }
+```
+
+
+
+## 路由守护卫士
+
+```js
+//to表示要去的页面
+//from表示当前页
+//next()是一个钩子，必须要调用，如果值为false如：next(false)，则阻止当前页面跳转，一般放行调用next()即可
+router.beforeEach((to, from, next) => {
+  
+})
+```
+
+## ES6奇葩语法
+
+### 1.多定义并赋值
+
+```js
+//定义一个对象
+let user={
+      name:'jimmy',
+      password:'123'
+    };
+//定义变量并赋值
+    let{
+      name,password,age
+    }=user;
+//age不在user里面，所以是undefined
+ alert(name+password+age);
+```
+
+### 2.字段名称取值
+
+```js
+ let user={
+      name:'jimmy',
+      password:'123'
+    };
+    alert(user['name']);
+```
+
+### 3.对象拷贝
+
+```js
+let user={
+      name:'jimmy',
+      password:'123'
+    };
+    let b={
+      age:23
+    }
+    Object.assign(b,user)//对象拷贝
+    let str =''
+    Object.keys(b).forEach(v=>{
+      str += b[v];
+    });
+    alert(str)
+```
+
+### 4.奇怪的取反
+
+```js
+//这里的感叹号是取反的意思，加在字符串上面就变为了boolean，如果是!''那么就是true，那么!!''就是false，花里胡哨
+Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true
+```
+
+### 5.数组与对象正确的判空姿势
+
+#### 数组
+
+```js
+if(this.arr && this.arr.length>0){
+      alert("aaa")
+    }else{
+      alert('bbb')
+    }
+```
+
+#### 对象
+
+```js
+if(this.obj && Object.keys(this.obj).length>0){
+      alert("aaa")
+    }else{
+      alert('bbb')
+    }
+
+//使用对象的字段来判断，如果字段不存在也就是undefined
+if(this.obj && this.obj.id){
+      alert("aaa")
+    }else{
+      alert('bbb')
+    }
+```
+
+
+
+## require的使用
+
+不适用import，动态的导出模块的内容
+
+### 示例
+
+```js
+//test.js
+const a = ()=>{
+  alert('zzzzzzz')
+}
+
+const b = 'ccc'
+
+export default {
+  a,
+  b
+}
+
+//使用export，就不用.default
+ var m = require('../components/test').default;
+     m.a();
+     alert(m.b)
+
+```
+
+## 清除npm的缓存
+
+先把node_module文件夹删了
+
+```
+npm cache clean --force
+```
+
+## 管理员模式CMD下删除文件
+
+```
+rmdir /s/q node_modules
+```
+
+<p align="center">今天去哪里玩好呢</p>
+
+
 

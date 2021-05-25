@@ -26,10 +26,10 @@
         <div class="modal-body" id = "model-body">
             <div class="form-group">
                 <input type="hidden" name="_csrf" th:value="${_csrf.token}" th:if="${_csrf}">
-                <input type="text" name="username"  class="form-control"placeholder="用户名" autocomplete="off">
+                <input type="text" name="username"  class="form-control"placeholder="用户名" autocomplete="off" value="root">
             </div>
             <div class="form-group">
-                <input type="password" name="password" class="form-control" placeholder="密码" autocomplete="off">
+                <input type="password" name="password" class="form-control" placeholder="密码" autocomplete="off" value="123">
 <!--                <div id="rem"><label for="rm">自动登录</label><input id="rm" name="remember-me" type="checkbox"></div>-->
             </div>
         </div>

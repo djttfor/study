@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author ttfor
@@ -65,6 +67,12 @@ public class Department implements Serializable {
      * 备注
      */
     private String remark;
+
+    /**
+     * 子部门
+     */
+    @TableField(exist = false)
+    private List<Department> children;
 
 
 }
