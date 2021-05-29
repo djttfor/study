@@ -13,14 +13,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @Slf4j
 public class AccessDecisionManagerImpl implements AccessDecisionManager {
@@ -32,7 +26,7 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
 
         //匿名模式不验证
         if(authentication instanceof AnonymousAuthenticationToken){
-            return;
+            throw new AccessDeniedException("请登录");
         }
         FilterInvocation filterInvocation = (FilterInvocation) object;
         //swagger2请求不验证

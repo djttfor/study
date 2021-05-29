@@ -1,10 +1,8 @@
 package com.ex.server.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.ex.server.config.CaptchaConfig;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ex.server.constant.IConstant;
 import com.ex.server.dto.IAuth;
 import com.ex.server.dto.LoginParam;
@@ -14,29 +12,23 @@ import com.ex.server.entity.Menu;
 import com.ex.server.entity.Role;
 import com.ex.server.mapper.AdminMapper;
 import com.ex.server.service.AdminService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ex.server.service.IBaseService;
 import com.ex.server.service.MenuService;
 import com.ex.server.service.RoleService;
-import com.ex.server.util.CommonUtil;
 import com.ex.server.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,6 +185,14 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     @Override
     public List<Admin> selectAll() {
         return adminMapper.selectAll();
+    }
+
+    @Override
+    /**
+     * 测试方法
+     */
+    public Admin test10087() {
+        return adminMapper.test10087();
     }
 
 

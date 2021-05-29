@@ -1,16 +1,18 @@
 package com.ex.server.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author ttfor
@@ -32,16 +34,19 @@ public class Position implements Serializable {
     /**
      * 职位
      */
+    @Excel(name = "学生姓名", width = 30)
     private String name;
 
     /**
      * 创建时间
      */
+    @Excel(name = "创建时间",width = 30, format = "yyyy-MM-dd HH:mm:ss.sss")
     private LocalDateTime createDate;
 
     /**
      * 是否启用
      */
+    @Excel(name = "是否启用", replace = {"启用_true","停用_false"})
     private Boolean enabled;
 
 

@@ -1,16 +1,19 @@
 package com.ex.server.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.excel.annotation.ExcelIgnore;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author ttfor
@@ -27,31 +30,37 @@ public class Role implements Serializable {
      * id
      */
     @TableId(value = "id", type = IdType.AUTO)
+    @Excel(name = "roleId",orderNum = "2")
     private Integer id;
 
     /**
      * 角色码
      */
+    @ExcelIgnore
     private String code;
 
     /**
      * 角色名称
      */
+    @Excel(name = "角色名称",orderNum = "2")
     private String name;
 
     /**
      * 创建时间
      */
+    @ExcelIgnore
     private LocalDateTime gmtCreate;
 
     /**
      * 是否启用
      */
+    @ExcelIgnore
     private Boolean enabled;
 
     /**
      * 角色备注
      */
+    @ExcelIgnore
     private String remark;
 
 

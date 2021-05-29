@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface AdminRoleMapper extends BaseMapper<AdminRole> {
 
+    AdminRole test1();
 }

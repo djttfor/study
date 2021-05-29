@@ -1,33 +1,36 @@
-package com.ex.server.test;
+package com.ex.server.itest;
 
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ex.server.dto.IAuth;
 import com.ex.server.entity.Admin;
-import com.ex.server.entity.Department;
+import com.ex.server.entity.Employee;
 import com.ex.server.entity.Menu;
 import com.ex.server.entity.Role;
 import com.ex.server.mapper.MenuMapper;
 import com.ex.server.mapper.RoleMapper;
-import com.ex.server.service.AdminService;
-import com.ex.server.service.DepartmentService;
-import com.ex.server.service.MenuService;
-import com.ex.server.service.RoleService;
+import com.ex.server.service.*;
 import com.ex.server.util.JwtTokenUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.ParseException;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 public class Test2 {
@@ -54,6 +57,15 @@ public class Test2 {
 
     @Autowired
     DepartmentService departmentService;
+
+    @Autowired
+    EmployeeService employeeService;
+
+    @Autowired
+    PositionService positionService;
+
+    @Autowired
+    AdminRoleService adminRoleService;
 
 
     @Test
@@ -131,24 +143,45 @@ public class Test2 {
     }
 
     @Test
-    public void test7(){
-        List<Admin> admins = adminService.selectAll();
-        for (Admin admin : admins) {
-            System.out.println(admin);
-        }
+    public void test7() throws IOException {
+        List<Employee> list = employeeService.list();
+        Workbook exportExcel =
+                ExcelExportUtil.exportExcel(new ExportParams("所有员工信息", "员工"),
+                        Employee.class, list);
+        FileOutputStream fileOutputStream = new FileOutputStream("F:\\Java\\Study\\IProject\\test.xls");
+        exportExcel.write(fileOutputStream);
+        fileOutputStream.close();
     }
+    @Test
+    public void test8() throws IOException {
+        Admin admin = adminService.test10087();
+        List<Admin> list = new ArrayList<>();
+        list.add(admin);
+        Workbook sheets =
+                ExcelExportUtil.exportExcel(new ExportParams("4号用户", "用户"),
+                        Admin.class,list );
+        FileOutputStream fileOutputStream = new FileOutputStream("F:\\Java\\Study\\IProject\\test3.xls");
+        sheets.write(fileOutputStream);
+        fileOutputStream.close();
 
+    }
+    @Test
+    public void test9(){
+        Admin admin = adminService.test10087();
+        System.out.println(admin);
+    }
+}
+class B1{
+    public static void main(String[] args) throws IOException, ParseException {
+        LocalDateTime now = LocalDateTime.of(2021,1,1,0,0,0);
+        WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY,5);
+        System.out.println("一年的第几周:"+now.get(weekFields.weekOfYear()));
+        //如果是第零周，那么就取去年的12月31号的周数为当前日期的周数
+        LocalDateTime date = LocalDateTime.of(2020,12,31,0,0,0);
+        System.out.println("一年的第几周:"+date.get(weekFields.weekOfYear()));
+        System.out.println(now.getDayOfWeek().getValue());
+    }
 
 
 }
-class B{
-    public static Integer parseInt(String s) {
-        return (s == null) ?
-                 null : Integer.parseInt(s);
-    }
-    public static void main(String[] args) {
-        System.out.println(parseInt("-1") + " " +
-                parseInt(null) + " " +
-                parseInt("1"));
-    }
-}
+

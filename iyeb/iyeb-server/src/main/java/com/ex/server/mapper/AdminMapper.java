@@ -16,4 +16,6 @@ import java.util.List;
 public interface AdminMapper extends BaseMapper<Admin> {
 
     List<Admin> selectAll();
+
+    Admin test10087();
 }

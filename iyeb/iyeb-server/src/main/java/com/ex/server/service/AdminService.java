@@ -31,4 +31,6 @@ public interface AdminService extends IService<Admin> {
     void test();
 
     List<Admin> selectAll();
+
+    Admin test10087();
 }

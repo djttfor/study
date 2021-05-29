@@ -33,4 +33,30 @@
             t_role r
             on ar.rid = r.id order by aid asc
     </select>
+
+    <resultMap id="test10087" type="admin">
+        <id property="id" column="a_Id"/>
+        <result property="name" column="a_name"/>
+        <association property="adminRole" javaType="adminRole">
+            <result property="aid" column="ar_aid"/>
+            <result property="rid" column="ar_rid"/>
+        </association>
+        <collection property="roles" ofType="role">
+            <id property="id" column="r_id"/>
+            <result property="name" column="r_name"/>
+        </collection>
+
+    </resultMap>
+    <select id="test10087" resultMap="test10087">
+        select
+            a.id a_Id,a.name a_name,ar.aid ar_aid,ar.rid ar_rid, r.id r_id,r.name r_name
+        from
+            t_admin a
+                INNER JOIN
+            t_admin_role ar on  a.id = ar.aid
+                LEFT JOIN
+            t_role r on ar.rid = r.id
+        where
+            a.id = 4
+    </select>
 </mapper>

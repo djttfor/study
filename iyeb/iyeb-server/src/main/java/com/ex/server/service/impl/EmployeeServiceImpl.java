@@ -1,9 +1,10 @@
 package com.ex.server.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ex.server.entity.Employee;
 import com.ex.server.mapper.EmployeeMapper;
 import com.ex.server.service.EmployeeService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,4 +18,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
 
+    @Override
+    public Page<Employee> pageQuery(int current, int pageSize) {
+        Page<Employee> page = new Page<>(current,pageSize);
+        return page(page);
+    }
 }

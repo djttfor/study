@@ -30,6 +30,7 @@
         <jjwt.version>0.9.0</jjwt.version>
         <kaptcha.version>0.0.9</kaptcha.version>
         <commons-pool2>2.6.2</commons-pool2>
+        <easypoi.version>4.1.3</easypoi.version>
     </properties>
 
     <packaging>pom</packaging>
@@ -91,6 +92,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-pool2</artifactId>
                 <version>${commons-pool2}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.afterturn</groupId>
+                <artifactId>easypoi-spring-boot-starter</artifactId>
+                <version>${easypoi.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

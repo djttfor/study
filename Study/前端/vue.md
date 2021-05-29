@@ -1259,5 +1259,9 @@ rmdir /s/q node_modules
 
 <p align="center">今天去哪里玩好呢</p>
 
+## js下载文件插件安装
 
+```
+npm install js-file-download
+```
 

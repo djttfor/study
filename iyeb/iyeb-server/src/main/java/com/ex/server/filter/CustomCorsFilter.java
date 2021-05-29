@@ -1,15 +1,9 @@
 package com.ex.server.filter;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
 
 
 public class CustomCorsFilter implements Filter {
@@ -37,6 +31,7 @@ public class CustomCorsFilter implements Filter {
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE,PUT");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With,x-token");
+        response.setHeader("Access-Control-Expose-Headers","Content-Disposition");
         String method= request.getMethod();
         if (method.equals("OPTIONS")){
             response.setStatus(200);

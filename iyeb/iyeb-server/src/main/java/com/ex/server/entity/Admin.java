@@ -1,17 +1,23 @@
 package com.ex.server.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.excel.annotation.ExcelCollection;
+import cn.afterturn.easypoi.excel.annotation.ExcelEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-
-import lombok.*;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -32,11 +38,13 @@ public class Admin implements Serializable,UserDetails {
      * id
      */
     @TableId(value = "id", type = IdType.AUTO)
+    @Excel(name = "用户id",needMerge = true)
     private Integer id;
 
     /**
      * 姓名
      */
+    @Excel(name = "用户名称",needMerge = true)
     private String name;
 
     /**
@@ -84,7 +92,6 @@ public class Admin implements Serializable,UserDetails {
     /**
      * 创建时间
      */
-
     private LocalDateTime gmtCreate;
 
     /**
@@ -104,10 +111,22 @@ public class Admin implements Serializable,UserDetails {
     private String roleCode;
 
     /**
+     * 测试字段
+     *
+     */
+    @TableField(exist = false)
+    @ExcelEntity(id = "aid")
+    private AdminRole adminRole;
+
+
+    /**
      * 角色集合
      */
     @TableField(exist = false)
+    @ExcelCollection(name = "Role集合")
     private List<Role> roles;
+
+
 
 
     @Override

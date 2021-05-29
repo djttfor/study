@@ -1,12 +1,14 @@
 package com.ex.server.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -29,11 +31,13 @@ public class AdminRole implements Serializable {
     /**
      * adminid
      */
+    @Excel(name = "aid",needMerge = true)
     private Integer aid;
 
     /**
      * 角色id
      */
+    @Excel(name = "rid",needMerge = true)
     private Integer rid;
 
     /**
@@ -42,6 +46,5 @@ public class AdminRole implements Serializable {
     private LocalDateTime gmtCreate;
 
     private String remark;
-
 
 }

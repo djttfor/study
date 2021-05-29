@@ -1,25 +1,16 @@
-package com.ex.server.test;
+package com.ex.server.itest;
 
 import com.ex.server.constant.IConstant;
-import com.ex.server.dto.LoginParam;
-import com.ex.server.entity.*;
+import com.ex.server.entity.Admin;
+import com.ex.server.entity.SysLog;
 import com.ex.server.service.*;
-
 import com.ex.server.util.JwtTokenUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,9 +80,3 @@ public class Test1 {
 
 }
 
-class A{
-    public static void main(String[] args) throws JsonProcessingException {
-        LoginParam loginParam = new LoginParam();
-        System.out.println(loginParam.getUsername());
-    }
-}
