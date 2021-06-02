@@ -1,12 +1,12 @@
 package com.ex.server.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.time.LocalDateTime;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("t_mail_log")
+@Component
 public class MailLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -26,7 +27,7 @@ public class MailLog implements Serializable {
     /**
      * 消息id
      */
-    @TableId(value = "msgId")
+    @TableId(value = "msg_id" ,type = IdType.INPUT)
     private String msgId;
 
     /**
@@ -62,11 +63,13 @@ public class MailLog implements Serializable {
     /**
      * 创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
 

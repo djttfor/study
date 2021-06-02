@@ -3,13 +3,11 @@ package com.ex.server.itest;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ex.server.dto.IAuth;
-import com.ex.server.entity.Admin;
-import com.ex.server.entity.Employee;
-import com.ex.server.entity.Menu;
-import com.ex.server.entity.Role;
+import com.ex.server.entity.*;
 import com.ex.server.mapper.MenuMapper;
 import com.ex.server.mapper.RoleMapper;
 import com.ex.server.service.*;
@@ -25,9 +23,6 @@ import org.springframework.security.core.userdetails.User;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -66,6 +61,9 @@ public class Test2 {
 
     @Autowired
     AdminRoleService adminRoleService;
+
+    @Autowired
+    MailLogService mailLogService;
 
 
     @Test
@@ -167,19 +165,15 @@ public class Test2 {
     }
     @Test
     public void test9(){
-        Admin admin = adminService.test10087();
-        System.out.println(admin);
+        mailLogService.update(new MailLog(),new LambdaUpdateWrapper<>(MailLog.class)
+                .set(MailLog::getStatus,1).eq(MailLog::getMsgId,"bf0e25e7-062a-4e16-8e32-9025a9ab608a"));
+//        mailLogService.update(new LambdaUpdateWrapper<>(MailLog.class)
+//                .set(MailLog::getStatus,2).eq(MailLog::getMsgId,"bf0e25e7-062a-4e16-8e32-9025a9ab608a"));
     }
 }
 class B1{
     public static void main(String[] args) throws IOException, ParseException {
-        LocalDateTime now = LocalDateTime.of(2021,1,1,0,0,0);
-        WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY,5);
-        System.out.println("一年的第几周:"+now.get(weekFields.weekOfYear()));
-        //如果是第零周，那么就取去年的12月31号的周数为当前日期的周数
-        LocalDateTime date = LocalDateTime.of(2020,12,31,0,0,0);
-        System.out.println("一年的第几周:"+date.get(weekFields.weekOfYear()));
-        System.out.println(now.getDayOfWeek().getValue());
+
     }
 
 

@@ -1,5 +1,6 @@
 package com.ex.server.service;
 
+import com.ex.server.entity.Employee;
 import com.ex.server.entity.MailLog;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface MailLogService extends IService<MailLog> {
 
+    boolean saveRedundant(Employee employee,String msgId);
 }

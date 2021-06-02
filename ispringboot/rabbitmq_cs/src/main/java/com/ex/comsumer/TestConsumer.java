@@ -48,6 +48,7 @@ public class TestConsumer {
         rider.setStatus("0");
         rider.setRemark("开始配送");
 
+
         try {
             riderService.save(rider);
             log.info("保存配送消息成功");

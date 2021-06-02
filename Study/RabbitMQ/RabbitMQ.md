@@ -1033,22 +1033,35 @@ exit
 
 解决该问题的方法有：
 
-#### 3.1设置重试次数
+#### 3.1自动确认+设置重试次数
 
-到了重试次数，消息还没消费的话，那么该消息会被丢弃
+注意：触发重试机制需要抛出异常，如果代码中catch了异常，那么重试机制会失效，
+
+如果多次重试还是异常，那么消息会被丢失
 
 ```yaml
-listener:
-  simple:
-    #自动应答
-    acknowledge-mode: auto
-    retry:
-      #是否重试
-      enabled: true
-      #重试间隔
-      initial-interval: 2000ms
-      #最多重试多少次
-      max-attempts: 3
+rabbitmq:
+    host: 47.112.181.157
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: /
+    #消息确认回调
+    publisher-confirm-type: correlated
+    #消息失败回调
+    publisher-returns: true
+    listener:
+      simple:
+        #自动应答
+        acknowledge-mode: auto
+        retry:
+          #是否重试
+          enabled: true
+          #重试间隔
+          initial-interval: 2000ms
+          #最多重试多少次
+          max-attempts: 3
+
 ```
 
 #### 3.2 try+catch+手动Ack
@@ -1136,3 +1149,142 @@ public void saveOrder(String orderNum, Channel channel, Message message) throws 
     }
 }
 ```
+
+### 消息确认机制
+
+#### ConfirmCallback
+
+消息到达RabbitMQ节点也就是到达交换机后返回一个ack（布尔值），当消息发送到不存在的交换机时，ack为false
+
+```java
+ /*
+        1.注意存有消息id
+        2.ack表示消息是否发送成功
+        3.发送失败原因
+         */
+rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+            String msgId = correlationData.getId();
+            if(ack){
+                log.info("{}====>消息发送成功",msgId);
+                //修改冗余表消息状态
+                mailLogService.update(new MailLog(),new LambdaUpdateWrapper<>(MailLog.class)
+                        .set(MailLog::getStatus,RabbitConstant.MESSAGE_SUCCESS).eq(MailLog::getMsgId,msgId));
+            }else{
+                log.info("{}====>消息发送失败",msgId);
+                log.info("原因====>{}",cause);
+                mailLogService.update(new MailLog(),new LambdaUpdateWrapper<>(MailLog.class)
+                        .set(MailLog::getStatus,RabbitConstant.MESSAGE_FAIL).eq(MailLog::getMsgId,msgId));
+            }
+        });
+```
+
+#### ReturnsCallback
+
+消息从交换机分发到Queue时，如果路由不到任意一个Queue或者说使用了不存在的路由key进行路由，就会触发此回调
+
+```java
+rabbitTemplate.setReturnsCallback(returned -> log.info("消息发送到队列失败====>{}",returned.toString()));
+rabbitTemplate.setMandatory(true);//开启此回调
+```
+
+### 消息可靠生产的解决方案
+
+1. 新建一个冗余表，内有msgID（需要是唯一，不能用自增），消息状态，重试次数等字段
+2. 发消息之前，先把消息入库，消息状态置为0（初始状态：发送中）
+3. 编写回调ConfirmCallback，如果ack为true，根据msgID修改库中的消息的状态为1（发送成功），如果为false，那么修改为2（发送失败）或者什么都不做，等待后续定时任务扫描重发。
+4. 针对由于网络波动或者其他原因发送失败的消息，应该使用一个定时任务来扫描数据库，扫描消息状态为零，重试次数小于3的消息，将扫描到的消息重发，如果重试次数超过3次，则放弃（如果是重要的消息，切记不能放弃）。
+
+优点：该方案简单，易实施
+
+缺点：
+
+1.如果一个消息刚刚入库，由于网络原因RabbitMQ没来得及返回ack，这个消息就被定时任务扫描到了并重发，就会造成了消息重复，消费端因此会重复消费同一条消息，所以消费端就要做幂等性处理
+
+2.如果在并发高的情况下，数据库的压力会很大，可考虑用redis来替代，或者对mysql集群，分表分库来提高可用性
+
+### 消息可靠消费的方案
+
+消息端消费时可能会出现的问题：
+
+1.消息重复消费
+
+2.消费消息出现了异常导致死循环
+
+解决方案步骤如下
+
+1.配置rabbitMQ手动应答
+
+2.使用redis来解决重复消费的问题，消费完一条消息就把消息id放入redis中，消费前先到redis中寻找该消息id是否存在，如果存在那么放弃这条消息不消费
+
+3.如果出现了异常，可绑定死信队列，把消息放入死信队列中，人工来处理死信队列或者其他方式。
+
+具体实现
+
+rabbitMQ配置
+
+```yml
+#手动ack
+    listener:
+      simple:
+        acknowledge-mode: manual
+```
+
+代码
+
+```java
+  @RabbitListener(queues = {RabbitConstant.MAIL_QUEUE})
+    public void sendWelcomeMail(Message<Employee> message, Channel channel , org.springframework.amqp.core.Message msg) throws MessagingException, IOException {
+        MessageProperties messageProperties = msg.getMessageProperties();
+        byte[] body = msg.getBody();
+        log.info("body:{}",new String(body));
+        //获取消息
+        Employee employee = message.getPayload();
+        MessageHeaders headers = message.getHeaders();
+        //tagId
+        long tagId = messageProperties.getDeliveryTag();
+        //获取msgId
+        String msgId = (String) headers.get("spring_returned_message_correlation");
+        HashOperations<String, Object, Object> hashOps = redisTemplate.opsForHash();
+        try {
+            Map<Object, Object> entries = hashOps.entries(RabbitConstant.MESSAGE_CONSUMER_CONFIRM);
+            if(entries.containsKey(msgId)){
+                //消息已经被消费了
+                log.error("消息已经被消费了=====》{}",msgId);
+                channel.basicAck(tagId,false);
+                return;
+            }
+
+//            log.error("出现了异常");
+//            int a = 1/0;//模拟异常
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+            //发件人
+            mimeMessageHelper.setFrom(mailProperties.getUsername());
+            //收件人
+            mimeMessageHelper.setTo(employee.getEmail());
+            //主题
+            mimeMessageHelper.setSubject("欢迎新员工");
+            //发送时间
+            mimeMessageHelper.setSentDate(new Date());
+            //邮件内容
+            Context context = new Context();
+            context.setVariable("name",employee.getName());
+            context.setVariable("gender",employee.getGender());
+            context.setVariable("departmentId",employee.getDepartmentId());
+            context.setVariable("jobLevelId",employee.getJobLevelId());
+            String welcomeNewEmp = templateEngine.process("welcomeNewEmp", context);
+            mimeMessageHelper.setText(welcomeNewEmp,true);
+            //发送邮件
+            javaMailSender.send(mimeMessage);
+            log.info("发送邮件成功");
+            //记录消息已经消费了
+            hashOps.put(RabbitConstant.MESSAGE_CONSUMER_CONFIRM,msgId,"OK");
+            channel.basicAck(tagId,false);
+        } catch (Exception e) {
+            log.error("抓住了异常,消息ID:{},详情====》{}",msgId,e);
+            channel.basicNack(tagId,false,false);
+        }
+    }
+
+```
+

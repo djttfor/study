@@ -156,7 +156,7 @@ getset k v
 
 #### 1.增删
 
-```
+```bash
 #获取list长度
 LLEN key
 

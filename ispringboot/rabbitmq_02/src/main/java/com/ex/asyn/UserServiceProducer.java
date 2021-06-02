@@ -54,6 +54,7 @@ public class UserServiceProducer {
         //发送订单消息给配送中心
         rabbitTemplate.convertAndSend("i_test","a.order",orderNum);
 
+
         //设置回调
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
             //如果发送消息成功

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.UUID;
 
 public class CommonUtil {
     /**
@@ -110,6 +111,14 @@ public class CommonUtil {
      */
     public static String getUnprefixedRoleName(String roleName){
         return roleName.substring(IConstant.ROLE_PREFIX.length());
+    }
+
+    /**
+     * 获取UUID
+     * @return
+     */
+    public static String getUUID(){
+        return UUID.randomUUID().toString();
     }
 
 

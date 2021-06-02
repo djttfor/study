@@ -1,5 +1,6 @@
 package com.ex.test;
 
+import com.ex.asyn.AsynService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -7,13 +8,18 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.Base64Codec;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @SpringBootTest
 public class Test1 {
+    @Autowired
+    AsynService asynService;
+
     @Test
     public void test1(){
         long date = System.currentTimeMillis();
@@ -58,7 +64,19 @@ public class Test1 {
     }
 
     @Test
-    public void test3(){
-
+    public void test3() throws ExecutionException, InterruptedException {
+        int[] arr = {1,3,5,7,6,2,12,0};
+        for (int i = 0; i < arr.length; i++) {
+            int t = arr[i];
+            new Thread(()->{
+                try {
+                    Thread.sleep(t);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(t);
+            }).start();
+        }
+        Thread.sleep(1000);
     }
 }

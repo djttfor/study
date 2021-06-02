@@ -280,6 +280,12 @@ spring:
 
 ### 整合thymeleaf
 
+#### 读音
+
+```
+thymeleaf  [taim li:f]
+```
+
 #### 导入
 
 ```
@@ -1979,5 +1985,44 @@ public class Swagger2Config {
 BearereyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImNyZWF0ZWQiOjE2MjA2MTMxMjkxMjYsImV4cCI6MTYyMTIxNzkyOX0.QyB9ff85J1UdzUxHBmveB6x8vIeK9jiJxtslT-QG8p0
 
 Authorization:
+```
+
+## 异步任务
+
+### 启用异步任务
+
+在配置类配置@EnableAsync即可
+
+最基础的异步类
+
+```java
+@Component
+public class AsynService {
+    @SneakyThrows
+    @Async
+    public void async(){
+        Thread.sleep(3000);
+        System.out.println("今晚打老虎");
+    }
+}
+```
+
+## 定时任务
+
+### 启动定时任务
+
+在配置类配置@EnableScheduling
+
+最基础的定时任务类
+
+```java
+@Component
+@Slf4j
+public class TaskService {
+    @Scheduled(cron = "7 * * * * ?")
+    public void task(){
+        log.info("今晚打老虎");
+    }
+}
 ```
 

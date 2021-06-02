@@ -29,7 +29,7 @@ public class Employee implements Serializable {
      * id
      */
     @TableId(value = "id", type = IdType.AUTO)
-    @Excel(name = "ID", width = 10)
+    //@Excel(name = "ID", width = 10)
     private Integer id;
 
     /**
