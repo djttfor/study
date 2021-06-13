@@ -20,16 +20,11 @@ public class CustomCorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-//        log.info("Authorization={}",request.getHeader("Authorization"));
-//        Enumeration<String> es = request.getHeaderNames();
-//        String s = "";
-//        while (es.hasMoreElements()){
-//            s = es.nextElement()+","+s;
-//        }
-//        log.info(s);
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+        response.setHeader("Vary", "Origin");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE,PUT");
         response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Credentials","true");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With,x-token");
         response.setHeader("Access-Control-Expose-Headers","Content-Disposition");
         String method= request.getMethod();

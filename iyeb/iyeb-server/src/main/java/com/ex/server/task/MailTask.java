@@ -24,7 +24,7 @@ public class MailTask {
     @Autowired
     MailProducers mailProducers;
 
-    @Scheduled(cron = "0/30 * * * * ? ")
+    @Scheduled(cron = "0 0 0/1 * * ? ")
     public void task(){
         log.info("开始扫描发送失败的邮件消息=============>");
         List<MailLog> list = mailLogService.list(Wrappers.lambdaQuery(MailLog.class)

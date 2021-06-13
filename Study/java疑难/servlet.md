@@ -174,15 +174,14 @@ tomcat架构俯视图
 
   代表一个应用，存储了多个Wrapper
 
-- Wrapper 、
-
-- 
+- Wrapper 
 
   封装了servlet
 
   Pipeline 管道  每个节点都由管道连接
 
   valve 阀门 如果想自己定义阀门，只需继承RequestFilterValve即可
+
 
 ## FilterChain
 
@@ -283,3 +282,28 @@ session是HttpServletRequest的字段
 ### 3.SessionID
 
 > SessionId是在第一次通过**request.getSession(true)**的执行中生成的
+
+## 请求转发与重定向的区别
+
+### 请求转发：
+
+```java
+request.getRequestDispatcher("URI地址").forward(request,response);
+```
+
+### 重定向：
+
+```java
+response.setStatus(302);//设置状态码
+response.setHeader("Location","URL地址");
+//或者
+response.setRedirect("URL地址");
+```
+
+### 区别
+
+- 重定向是两次请求，转发是一次请求
+- 重定向是浏览器行为，请求转发是服务器行为
+- 重定向浏览器的地址会发生改变，转发不会
+- 重定向可以重定向到任何地址，转发只能在项目内转发
+

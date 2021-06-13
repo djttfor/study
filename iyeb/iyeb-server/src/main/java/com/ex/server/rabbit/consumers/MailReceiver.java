@@ -42,8 +42,6 @@ public class MailReceiver {
     @RabbitListener(queues = {RabbitConstant.MAIL_QUEUE})
     public void sendWelcomeMail(Message<Employee> message, Channel channel , org.springframework.amqp.core.Message msg) throws MessagingException, IOException {
         MessageProperties messageProperties = msg.getMessageProperties();
-        byte[] body = msg.getBody();
-        log.info("body:{}",new String(body));
         //获取消息
         Employee employee = message.getPayload();
         MessageHeaders headers = message.getHeaders();

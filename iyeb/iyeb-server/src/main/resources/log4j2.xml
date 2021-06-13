@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration status="debug" monitorInterval="30">
+    <Properties>
+        <Property name="MODULE_NAME">iyeb-server</Property>
+    </Properties>
     <!-- 先定义所有的appender(附加器)-->
     <appenders>
+
         <!-- 输出控制台的配置 -->
         <Console name="Console" target="SYSTEM_OUT">
             <!-- 控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
@@ -9,11 +13,30 @@
             <!-- 输出日志的格式 -->
             <PatternLayout pattern="[%d{HH:mm:ss.SSS}] [%-5p] %l - %m%n"/>
         </Console>
+
+        <!--日志保存设置-->
+        <RollingFile name="RollingFile" fileName="${MODULE_NAME}/logs/web.log"
+                     filePattern="${MODULE_NAME}/logs/$${date:yyyy}/$${date:MM}/$${date:dd}/web-%d{yyyy-MM-dd}-%i.log.gz">
+            <!-- 输出日志的格式 -->
+            <PatternLayout pattern="[%d{yyyy-MM-dd ' ' HH:mm:ss}] [%-5p] %l - %m%n"/>
+            <!--只保存error以上的日志-->
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!--触发日志-->
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <!--web.log大于10MB就要做归档处理-->
+                <SizeBasedTriggeringPolicy size="10MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <!--最多保存20个，超过20个就删除第一个-->
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
     </appenders>
 
     <loggers>
         <root level="debug">
             <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFile"/>
         </root>
     </loggers>
 </configuration>

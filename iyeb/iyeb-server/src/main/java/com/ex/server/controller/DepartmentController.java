@@ -8,8 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.stereotype.Controller;
-
 import java.util.List;
 
 /**
@@ -30,7 +28,10 @@ public class DepartmentController {
     @ApiOperation("查询所有部门，按照父子部门排列好")
     @GetMapping("/getDeptDetail")
     public ResponseBean getDeptDetail(){
-        return ResponseBean.success(departmentService.selectAll());
+        ResponseBean success = null;
+            Department department = departmentService.selectAll();
+            success = ResponseBean.success(department);
+        return success;
     }
 
     @ApiOperation("查询所有部门，不排列")

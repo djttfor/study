@@ -28,7 +28,11 @@ public class DepartmentServiceImpl extends ServiceImpl<DepartmentMapper, Departm
 
     public Department findChildren(List<Department> list,Department department){
         for (Department child : list) {
-            if (child.getParentId().equals(department.getId())) {
+            Integer parentId = child.getParentId();
+            if(parentId == null){
+                return department;
+            }
+            if (parentId.equals(department.getId())) {
                 if(department.getChildren()==null){
                     department.setChildren(new ArrayList<>());
                 }

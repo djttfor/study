@@ -14,8 +14,11 @@ import org.springframework.stereotype.Controller;
  * @since 2021-04-21
  */
 @Controller
-@RequestMapping("/sysMsg")
+@RequestMapping("/sys/demo")
 public class SysMsgController {
-
+    @RequestMapping("/test1")
+    public String test1(){
+        return "test1";
+    }
 }
 

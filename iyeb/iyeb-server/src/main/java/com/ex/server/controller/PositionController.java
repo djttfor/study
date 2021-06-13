@@ -1,15 +1,12 @@
 package com.ex.server.controller;
 
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ex.server.dto.ResponseBean;
 import com.ex.server.entity.Position;
 import com.ex.server.service.PositionService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,9 +26,11 @@ public class PositionController {
     @Autowired
     PositionService positionService;
 
+
     @ApiOperation("查询所有职位信息")
     @GetMapping("/getAll")
     public ResponseBean getAll(){
+       // int a = 1/0;
         return ResponseBean.success(positionService.list());
     }
 

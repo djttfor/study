@@ -1,6 +1,6 @@
 package com.ex.server.config;
 
-import com.ex.server.filter.AswaggerFilter;
+
 import com.ex.server.filter.CustomCorsFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

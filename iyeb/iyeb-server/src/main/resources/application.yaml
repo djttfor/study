@@ -78,6 +78,7 @@ logging:
     org:
       thymeleaf: info
       springframework.boot.autoconfigure.logging: info
+  config: classpath:log4j2.xml
 
 jwt:
   #jwt存储的请求头

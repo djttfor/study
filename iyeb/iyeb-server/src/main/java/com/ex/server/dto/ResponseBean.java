@@ -1,5 +1,6 @@
 package com.ex.server.dto;
 
+import com.ex.server.enums.ErrorEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,13 @@ public class ResponseBean {
     }
 
     public static ResponseBean fail(String message){
-        return new ResponseBean(50000,message,null);
+        return new ResponseBean(20000,message,null);
+    }
+
+    public static ResponseBean fail(Integer code,String message){return new ResponseBean(code,message,null);}
+
+    public static ResponseBean fail(ErrorEnum errorEnum){
+        return new ResponseBean(errorEnum.getCode(),errorEnum.getMsg(),null);
     }
 
 }

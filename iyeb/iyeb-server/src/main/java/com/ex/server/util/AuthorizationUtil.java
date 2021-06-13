@@ -38,4 +38,9 @@ public class AuthorizationUtil {
     public static void auth(){
         auth("test",null);
     }
+
+    public static UsernamePasswordAuthenticationToken getAuthenticationToken(String username){
+        Principal principal = () -> username;
+        return new UsernamePasswordAuthenticationToken( principal,null,null);
+    }
 }

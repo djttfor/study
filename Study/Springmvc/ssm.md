@@ -572,8 +572,12 @@ druid.maxOpenPreparedStatements=20
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration status="debug" monitorInterval="30">
+    <Properties>
+        <Property name="MODULE_NAME">iyeb-server</Property>
+    </Properties>
     <!-- 先定义所有的appender(附加器)-->
     <appenders>
+
         <!-- 输出控制台的配置 -->
         <Console name="Console" target="SYSTEM_OUT">
             <!-- 控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
@@ -582,40 +586,31 @@ druid.maxOpenPreparedStatements=20
             <PatternLayout pattern="[%d{HH:mm:ss.SSS}] [%-5p] %l - %m%n"/>
         </Console>
 
-        <!-- 文件会打印出所有信息，这个log每次运行程序会自动清空，由append属性决定，这个也挺有用的，适合临时测试用 -->
-        <!-- append为TRUE表示消息增加到指定文件中，false表示消息覆盖指定的文件内容，默认值是true -->
-<!--        <File name="log" fileName="log/test.log" append="false">-->
-<!--            <PatternLayout pattern="[%d{HH:mm:ss.SSS}] [%-5p] %l - %m%n"/>-->
-<!--        </File>-->
-
-        <!-- 添加过滤器ThresholdFilter,可以有选择的输出某个级别以上的类别  onMatch="ACCEPT" onMismatch="DENY"意思是匹配就接受,否则直接拒绝  -->
-<!--        <File name="ERROR" fileName="logs/error.log">-->
-<!--            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>-->
-<!--            <PatternLayout pattern="[%d{yyyy.MM.dd 'at' HH:mm:ss z}] [%-5p] %l - %m%n"/>-->
-<!--        </File>-->
-
-        <!-- 这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
-<!--        <RollingFile name="RollingFile" fileName="logs/web.log"-->
-<!--                     filePattern="logs/$${date:yyyy-MM}/web-%d{MM-dd-yyyy}-%i.log.gz">-->
-<!--            <PatternLayout pattern="[%d{yyyy-MM-dd 'at' HH:mm:ss z}] [%-5p] %l - %m%n"/>-->
-<!--            <SizeBasedTriggeringPolicy size="2MB"/>-->
-<!--        </RollingFile>-->
+        <!--日志保存设置-->
+        <RollingFile name="RollingFile" fileName="${MODULE_NAME}/logs/web.log"
+                     filePattern="${MODULE_NAME}/logs/$${date:yyyy}/$${date:MM}/$${date:dd}/web-%d{yyyy-MM-dd}-%i.log.gz">
+            <!-- 输出日志的格式 -->
+            <PatternLayout pattern="[%d{yyyy-MM-dd ' ' HH:mm:ss}] [%-5p] %l - %m%n"/>
+            <!--只保存error以上的日志-->
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!--触发日志-->
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <!--web.log大于10MB就要做归档处理-->
+                <SizeBasedTriggeringPolicy size="10MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <!--最多保存20个，超过20个就删除第一个-->
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
     </appenders>
 
-    <!-- 然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
     <loggers>
-        <!-- 过滤掉spring和mybatis的一些无用的DEBUG信息-->
-<!--        <logger name="org.springframework" level="INFO"/>-->
-<!--        <logger name="org.mybatis" level="INFO"/>-->
-        <!-- 建立一个默认的root的logger -->
         <root level="debug">
-<!--            <appender-ref ref="RollingFile"/>-->
-<!--            <appender-ref ref="ERROR"/>-->
-<!--            <appender-ref ref="log"/>-->
             <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFile"/>
         </root>
     </loggers>
-
 </configuration>
 ```
 
@@ -944,14 +939,21 @@ Content-Type: application/json
 
 ```
 
-## springmvc源码分析
+## SpringMvc的执行流程
 
-### 1.controller返回值处理
+1. SpringMVC的请求都是由DisPatchServlet来处理，具体逻辑在doDisPatch上
+2. 通过HandlerMapping（处理器映射器）根据请求的路径匹配获取HandlerMethod（Controller里对应的请求方法）和拦截器
+3. 根据HandlerMethod获取对应的HandlerAdapter（处理器适配器），然后通过这个HandlerAdapter通过反射调用Controller的方法
+4. 得到返回值后，如果你的Controller方法添加了@ResponseBody，那么会通过消息转换器（一般是jackson或者fastjson,把返回值转为json格式）转换为对应的格式写入响应体中，返回给前台，此时不会经过视图解析器。
+5. 如果没有添加@ResponseBody，返回值会被封装成ModelAndView返回，从ModelAndView获取视图名称，通过视图解析器获得视图并渲染，然后返回给前台
 
-在执行完controller代码之后，根据返回值类型选择对应的返回值处理器，springmvc默认有15种返回值处理器
+## 状态码异常
 
-![image-20210322001648735](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210322001648735.png)
+### 400
 
-获得对应的返回值处理器后，调用其handleReturnValue方法。
+参数字段类型date，却接受到了乱七八糟的字符串
 
-在处理RequestResponseBody时，会根据请求所需的mediaType来选择对应的mediaType，如果没选择对应的mediaType就会抛出HttpMediaTypeNotAcceptableException，在springboot中，mediaType会被选择为application/json, 消息处理器没有设置fastjson就会选择jackson
+### 415
+
+后台接受参数为User对象，却收到了String
+

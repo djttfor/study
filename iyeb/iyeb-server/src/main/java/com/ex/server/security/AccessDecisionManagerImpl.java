@@ -2,6 +2,8 @@ package com.ex.server.security;
 
 import com.ex.server.constant.IConstant;
 import com.ex.server.dto.IAuth;
+import com.ex.server.enums.ErrorEnum;
+import com.ex.server.exception.IAccessDeniedException;
 import com.ex.server.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +40,13 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
         //获取令牌
         String token = CommonUtil.getUsernameTokenFromRequest(filterInvocation.getRequest());
         if (token==null) {
-            throw new AccessDeniedException("登录过期，请重新登录");
+            //throw new AccessDeniedException("登录过期，请重新登录");
+            throw new IAccessDeniedException(ErrorEnum.LOGIN_EXPIRED);
         }
         Object o = redisTemplate.opsForValue().get(token);
         if (o==null) {
-            throw new AccessDeniedException("登录过期，请重新登录");
+            //throw new AccessDeniedException("登录过期，请重新登录");
+            throw new IAccessDeniedException(ErrorEnum.LOGIN_EXPIRED);
         }
         //获取请求路径
         String requestUrl = filterInvocation.getRequestUrl();
@@ -53,7 +57,7 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
         //验证权限
         IAuth iAuth = (IAuth) o;
         if (iAuth.getAuthPath().stream().noneMatch(requestUrl::startsWith)){
-            throw new AccessDeniedException("权限不足，请联系管理员");
+            throw new IAccessDeniedException(ErrorEnum.PERMISSION_DENIED);
         }
     }
 

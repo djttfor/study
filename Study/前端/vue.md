@@ -1265,3 +1265,10 @@ rmdir /s/q node_modules
 npm install js-file-download
 ```
 
+## SocketJS安装
+
+```
+npm install sockjs-client
+npm install stompjs
+```
+

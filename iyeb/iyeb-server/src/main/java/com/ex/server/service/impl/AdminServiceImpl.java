@@ -10,6 +10,8 @@ import com.ex.server.dto.ResponseBean;
 import com.ex.server.entity.Admin;
 import com.ex.server.entity.Menu;
 import com.ex.server.entity.Role;
+import com.ex.server.enums.ErrorEnum;
+import com.ex.server.exception.BusinessException;
 import com.ex.server.mapper.AdminMapper;
 import com.ex.server.service.AdminService;
 import com.ex.server.service.IBaseService;
@@ -90,33 +92,33 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
                 ||
                         "".equals(loginParam.getCodeToken())
         ) {
-            return ResponseBean.fail("用户名或者密码或验证码不能为空");
+            throw new BusinessException(ErrorEnum.LOGIN_PARAM_NULL);
         }
 
         String code = (String) redisTemplate.opsForValue().get(loginParam.getCodeToken());
         if (code==null){
-            return ResponseBean.fail("验证码已过期，请重新获取");
+            throw new BusinessException(ErrorEnum.VERIFICATION_CODE_EXPIRED);
         }
         if (!loginParam.getCode().equalsIgnoreCase(code)){
-            return ResponseBean.fail("验证码错误，请重新输入");
+            throw new BusinessException(ErrorEnum.VERIFICATION_CODE_ERROR);
         }
 
         //使用springSecurity验证
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginParam.getUsername());
         if (userDetails==null || !passwordEncoder.matches(loginParam.getPassword(),userDetails.getPassword())){
-            return ResponseBean.fail("用户名或密码不正确");
+            throw new BusinessException(ErrorEnum.USERNAME_PASSWORD_ERROR);
         }
 
         if (!userDetails.isEnabled()) {
-            return ResponseBean.fail("账号未启用，请联系管理员");
+            throw new BusinessException(ErrorEnum.ACCOUNT_DISABLE);
         }
 
         if (!userDetails.isAccountNonExpired()) {
-            return ResponseBean.fail("账号已过期，请联系管理员");
+            throw new BusinessException(ErrorEnum.ACCOUNT_EXPIRED);
         }
 
         if (!userDetails.isAccountNonLocked()) {
-            return ResponseBean.fail("账号已锁定，请联系管理员");
+            throw new BusinessException(ErrorEnum.ACCOUNT_LOCKED);
         }
 
         //获取用户权限

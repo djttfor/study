@@ -3,7 +3,7 @@ package com.ex.server.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ex.server.entity.Admin;
 import com.ex.server.entity.Menu;
-import com.ex.server.exception.MyException;
+import com.ex.server.exception.BusinessException;
 import com.ex.server.mapper.MenuMapper;
 import com.ex.server.service.IBaseService;
 import com.ex.server.service.MenuService;
@@ -39,7 +39,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     public List<Menu> getMenuByAdminId() {
         Admin admin = CommonUtil.getPrincipal();
         if(null == admin){
-            throw new MyException("Admin为空，用户未登录");
+            throw new BusinessException("Admin为空，用户未登录");
         }
         return menuMapper.getMenuByAdminId(admin.getId());
     }

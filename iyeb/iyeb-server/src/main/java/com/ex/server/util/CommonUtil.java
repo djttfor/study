@@ -38,6 +38,22 @@ public class CommonUtil {
         return message;
     }
 
+    /**
+     * 获取最原始的异常信息
+     * @param t
+     * @return
+     */
+    public static String getRealException(Throwable t){//获取最里层的异常
+        while (null != t){
+            Throwable t1 = t.getCause();
+            if(null == t1){
+                return t.getMessage();
+            }
+            t = t1;
+        }
+        return null;
+    }
+
     public static void saveSession(HttpServletRequest request, HttpServletResponse response){
         String id = request.getSession().getId();
         Cookie sessionCookie = findCookieByName("JSESSIONID", request.getCookies());
