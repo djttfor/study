@@ -228,3 +228,59 @@ function processMsg(sessionId,msg){
 }
 ```
 
+### 另一种前台连接方式
+
+#### 创建websocket对象
+
+```js
+let ws = new websocket(url)
+```
+
+>url格式说明：ws://ip地址:端口号/资源名称
+
+#### websocket事件
+
+| 事件    | 事件处理程序            | 描述                       |
+| ------- | ----------------------- | -------------------------- |
+| open    | websocket对象.onopen    | 连接建立时触发             |
+| message | websocket对象.onmessage | 客户端接收服务端数据时触发 |
+| error   | websocket对象.onerror   | 通信发生错误时触发         |
+| close   | websocket对象.onclose   | 连接关闭时触发             |
+
+#### websocket方法
+
+```
+send() //使用连接发送数据
+```
+
+### 另一种后台实现方式
+
+#### 服务端实现
+
+>Tomcat的7.0.5版本开始支持websocket，并且实现了Java websocket规范（JSR356）
+
+Java websocket 应用由一系列的webSocketEndpoint组成，Endpoint是一个Java对象，代表webSocket服务端，我们可以视为处理具体webSocket消息的接口，就像servlet与http请求一样。
+
+我们可以通过两种方式定义Endpoint：
+
+1. 编程式，即继承javax.websocket.Endpoint并实现其方法
+2. 注解式，定义一个POJO，并添加@ServerEndpoint相关注解
+
+Endpoint实例在WebSocket握手时创建，并在客户端与服务端链接过程中有效，最后在链接关闭时结束。在Endpoint接口定义了与其生命周期相关的方法，规范实现者确保生命周期的各个阶段调用实例的相关方法。生命周期方法如下：
+
+| 方法    | 含义描述                                                     | 注解     |
+| ------- | ------------------------------------------------------------ | -------- |
+| onClose | 当会话关闭时调用                                             | @OnClose |
+| onOpen  | 当开启一个新的会话调用，该方法时客户端与服务端握手成功后调用的方法 | @OnOpen  |
+| onError | 当连接过程中异常时调用                                       | @OnError |
+
+#### 服务端如何接收客户端发送的数据呢？
+
+通过为**Session**添加**MessageHandler**来接收消息，当采用注解方式定义**Endpoint**时，我们还可以通过**@OnMessage**注解指定接收消息的方法。
+
+#### 服务端如何推送数据给客户端呢？
+
+发送消息则由**RemoteEndpoint**完成，其实例由**Session**维护，根据使用情况，我们还可以同通过**Session.getBasicRemote**获取同步消息发送的实例，然后调用其**sendXxx()**方法就可以发送消息，可以通过**Session.getAsyncRemote**获取异步消息发送实例
+
+
+

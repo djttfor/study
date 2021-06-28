@@ -93,7 +93,7 @@ required：必需
 
 select : name 
 
-option: value
+option: value，label
 
 ```html
 <select name="呵呵">

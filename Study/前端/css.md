@@ -196,22 +196,33 @@ div浮动的时候，其他div就会被移动上来，需要下面的div设置cl
 
 ## 6  定位
 
-绝对定位：基于xxx进行定位
+### 1.父相子绝
 
-如果没有父元素没有设置定位，那么会相对浏览器定位，反之会相对父元素定位
+父元素设置relative，子元素设置absolute，子元素就可以使用**bottom、right、left、top**来基于父元素偏移了，
 
-这个可以设置负值移动到父元素外面去
+**注意**：如果父元素没有设置relative，那么会基于body偏移
 
-position：absolute
+偏移效果：left: 30px 会使得子元素的左上角端点离左边30px, right:30px 会使右上角端点离右边30px,依此类推。
 
-相对定位：相对于原来的位置偏移的距离
+```css
+background-image: url(${imgUrl});
+    background-size: 100% 100%;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+```
 
-position：relative
+### 2.子相
 
-可设置 bottom、right、left、top，如：bottom=10px，从下往上10px，left=50px,从左到右50px
+子元素设置relative，此时会根据它的直接父元素进行偏移
+
+
 
 固定定位：相对于浏览器进行定位，规定在浏览器的某个位置
 
 position：flex
 
 z-index: 在两个相互覆盖的块级元素中定义，谁大谁在上面。
+

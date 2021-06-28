@@ -1120,6 +1120,80 @@ methods:{
   }
 ```
 
+### mapActions
+
+mapActions 工具函数会将 store 中的 dispatch 方法映射到组件的 methods 中
+
+vuex中
+
+```js
+actions: {
+    test1 (){
+      console.log('这是mapActions的测试1');
+    },
+    test2 ({ commit },num){
+      console.log(num);
+    },
+}
+```
+
+组件
+
+```js
+ methods: {
+    ...mapActions(['test1','test2']),
+ }
+```
+
+调用
+
+```js
+ created () {
+    this.test1()
+    this.test2(2)
+  },
+```
+
+### mapState
+
+用组件的computed取接收vuex的state值
+
+vuex
+
+```js
+ state: {
+    test1:'111',
+    test2:[],
+   }
+```
+
+getters.js
+
+```js
+const getters = {
+  test1: state => state.user.test1,
+  test2: state => state.user.test2,
+  }
+```
+
+组件
+
+```js
+computed: mapState({
+    test1: state => state.user.test1,
+    test2: state => state.user.test2,
+  })
+```
+
+调用
+
+```js
+created () {
+    console.log(this.test1)
+    console.log(this.test2.length)
+  },
+```
+
 
 
 ## 路由守护卫士
@@ -1213,6 +1287,147 @@ if(this.obj && this.obj.id){
     }else{
       alert('bbb')
     }
+```
+
+### 6.async 与await的用法
+
+>async 是一个修饰符，async 定义的函数会默认的返回一个Promise对象resolve的值，因此对async函数可以直接进行then操作,返回的值即为then方法的传入函数
+>
+>await 关键字 只能放在 async 函数内部， await关键字的作用 就是获取 Promise中返回的内容， 获取的是Promise函数中resolve或者reject的值
+>
+>如果await 后面并不是一个Promise的返回值，则会按照同步程序返回值处理,为undefined
+
+```js
+//用法1，给方法添加async修饰，在调用时直接.then(x=>{x})处理
+async t1(){
+      return 1;
+}
+created() {
+    this.t1().then(x=>{console.log(x)})
+}
+//用法2，获取异步方法的返回值
+t1(){
+      return new Promise(resolve => {
+        setTimeout(function(){
+          console.log('到点了')
+          resolve(4)
+        }, 1000)
+      })
+    },
+ async t2(){
+      let a = await this.t1()
+      console.log(a)
+    }
+created() {
+    this.t2();
+  }
+```
+
+### 7.Promise的用法
+
+#### 处理返回值，处理错误
+
+```js
+//1
+t1(){
+      let a = 5
+      return new Promise((resolve,reject)=>{
+        if(a>5){
+          resolve(5)
+        }else{
+          reject(new Error('爬'))//将打印错误
+        }
+      });
+    }
+//2,在执行axios方法时，可以处理出现的错误
+ logout({ commit, state, dispatch }) {
+    return new Promise((resolve, reject) => {
+      logout(state.token).then(() => {
+        removeToken()
+        resetRouter()
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  }
+//3. 第一种处理方式的变种
+ t1(){
+      let a = 5
+      if(a>5){
+        return  Promise.resolve(5)
+      }else{
+        return  Promise.reject(new Error('爬'))
+      }
+    }
+```
+
+#### 方法返回后可做处理
+
+```js
+ t1(){
+      let a = 5
+      return new Promise((resolve, reject)=>{
+        if(a>=5){
+          resolve(6)
+        }else{
+          reject('出错了');
+        }
+      })
+    }
+//处理
+created() {
+    this.t1().then(res => {
+      alert(res)//结果
+    }).catch(err => {
+      alert(err)//打印出错了
+    })
+  }
+```
+
+### 8.拓展运算符
+
+三个点（...）真名叫扩展运算符，是在ES6中新增加的内容，它可以在函数调用/数组构造时，将数组表达式或者string在语法层面展开；还可以在构造字面量对象时将对象表达式按照key-value的方式展开
+
+#### 遍历
+
+```js
+// 数组
+var number = [1,2,3,4,5,6]
+console.log(...number) //1 2 3 4 5 6
+//对象
+var man = {name:'chuichui',height:176}
+console.log({...man}) / {name:'chuichui',height:176}
+```
+
+#### 合并
+
+```js
+//数组的合并
+var arr1 = ['hello']
+var arr2 =['chuichui']
+var mergeArr = [...arr1,...arr2]
+mergeArr  // ['hello','chuichui']
+// 对象分合并
+var obj1 = {name:'chuichui'}
+var obj2 = {height:176}
+var mergeObj = {...obj1,...obj2}
+mergeObj // {name: "chuichui", height: 176}
+```
+
+#### 字符串转字符数组
+
+```js
+var arr1 = [...'hello']
+arr1 // ["h", "e", "l", "l", "o"]
+```
+
+#### 函数传参
+
+```js
+function f(v,w,x,y,z){ }
+var args = [2,3]
+f(1,...args,4,...[5])
 ```
 
 

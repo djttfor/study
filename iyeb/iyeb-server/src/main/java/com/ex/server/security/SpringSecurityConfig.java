@@ -100,7 +100,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/email/**",
                 "/topic/**",
                 "/codeToken",
-                "/ws/**"
+                "/ws/**",
+                "/rawChat/**"
         );
     }
 

@@ -20,6 +20,7 @@ public enum ErrorEnum {
     ACCOUNT_DISABLE(50009,"账号未启用"),
     ACCOUNT_LOCKED(50010,"账号已被锁定，请联系管理员"),
     ACCOUNT_EXPIRED(50011,"账号已过期"),
+    WEB_SOCKET_CONNECT_ERROR(50012,"websocket连接已关闭")
 
 
 

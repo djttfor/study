@@ -942,10 +942,56 @@ Content-Type: application/json
 ## SpringMvc的执行流程
 
 1. SpringMVC的请求都是由DisPatchServlet来处理，具体逻辑在doDisPatch上
-2. 通过HandlerMapping（处理器映射器）根据请求的路径匹配获取HandlerMethod（Controller里对应的请求方法）和拦截器
+2. 通过HandlerMapping（处理器映射器）根据请求的路径匹配获取HandlerMethod（Controller里对应的请求方法,也就是业务逻辑）和拦截器
 3. 根据HandlerMethod获取对应的HandlerAdapter（处理器适配器），然后通过这个HandlerAdapter通过反射调用Controller的方法
 4. 得到返回值后，如果你的Controller方法添加了@ResponseBody，那么会通过消息转换器（一般是jackson或者fastjson,把返回值转为json格式）转换为对应的格式写入响应体中，返回给前台，此时不会经过视图解析器。
 5. 如果没有添加@ResponseBody，返回值会被封装成ModelAndView返回，从ModelAndView获取视图名称，通过视图解析器获得视图并渲染，然后返回给前台
+
+## handlerAdapter调用Controller方法获取参数的过程
+
+1. 从HandlerMethod获取一个HandlerParameter数组，这个数组代表了这个方法有多少个参数，每个HandlerParameter里面有这个参数的注解信息以及参数的类型信息
+2. 根据HandlerParameter获取对应的参数解析器，（@RequestBody就用了**RequestResponseBodyMethodProcessor**，@RequestParam使用**RequestParamMethodArgumentResolver**，其他参数使用**ServletRequestMethodArgumentResolver**）
+3. 根据参数解析器构建参数。
+
+#### 参数解析器类型
+
+**RequestResponseBodyMethodProcessor**
+
+>@RequestBody修饰的参数，使用消息转换器将请求体的消息转化为对应的JavaBean，比如FastJson，Jackson
+
+**RequestParamMethodArgumentResolver**
+
+>@RequestParam修饰的参数，使用Request.getParameterValues()获取参数
+
+**ServletRequestMethodArgumentResolver**
+
+如果参数类型是以下类型，就会使用此Resolver帮你创建
+
+```java
+public boolean supportsParameter(MethodParameter parameter) {
+		Class<?> paramType = parameter.getParameterType();
+		return (WebRequest.class.isAssignableFrom(paramType) ||
+				ServletRequest.class.isAssignableFrom(paramType) ||
+				MultipartRequest.class.isAssignableFrom(paramType) ||
+				HttpSession.class.isAssignableFrom(paramType) ||
+				(pushBuilder != null && pushBuilder.isAssignableFrom(paramType)) ||
+				(Principal.class.isAssignableFrom(paramType) && !parameter.hasParameterAnnotations()) ||
+				InputStream.class.isAssignableFrom(paramType) ||
+				Reader.class.isAssignableFrom(paramType) ||
+				HttpMethod.class == paramType ||
+				Locale.class == paramType ||
+				TimeZone.class == paramType ||
+				ZoneId.class == paramType);
+	}
+```
+
+**ServletModelAttributeMethodProcessor**
+
+没有任何参数解析器匹配就会使用这个解析器
+
+通过反射构建参数，参数字段名与Request的参数名相同那么该字段会被填充
+
+
 
 ## 状态码异常
 

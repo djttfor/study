@@ -67,7 +67,7 @@ public class Admin implements Serializable,UserDetails {
      * 是否启用
      */
     @Getter(value = AccessLevel.NONE)
-    private Boolean enabled;
+    private boolean enabled;
 
     /**
      * 密码
@@ -125,9 +125,6 @@ public class Admin implements Serializable,UserDetails {
     @TableField(exist = false)
     @ExcelCollection(name = "Role集合")
     private List<Role> roles;
-
-
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
