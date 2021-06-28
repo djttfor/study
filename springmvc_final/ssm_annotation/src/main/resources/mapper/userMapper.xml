@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ex.ssm.mapper.UserMapper">
+    <!--使用嵌套结果-->
+    <select id="queryAllByNestedResult" resultMap="allByNestedResult">
+        select
+            u.id uid ,username ,u.password userPassword ,u.phone,u.address,
+            a.account_name accountName,a.password accountPassword,a.balance,
+            m.member_name memberName,m.desc memberDesc
+        from
+            user u left JOIN account a on u.id = a.uid
+                   left join member m on u.id = m.uid;
+    </select>
+    <resultMap id="allByNestedResult" type="user">
+        <id column="uid" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <association property="account" >
+            <result column="accountName" property="accountName"/>
+            <result column="accountPassword" property="password"/>
+            <result column="balance" property="balance"/>
+        </association>
+        <collection property="members" ofType="member">
+            <result column="memberName" property="memberName"/>
+            <result column="memberDesc" property="desc"/>
+        </collection>
+    </resultMap>
+    <!--使用嵌套查询-->
+    <select id="queryAllByNestedQuery" resultMap="allByNestedQuery">
+        select
+               u.id uid ,username ,u.password userPassword ,u.phone,u.address
+        from
+               user u
+    </select>
+    <resultMap id="allByNestedQuery" type="user">
+        <id column="uid" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <association property="account" column="uid" select="com.ex.ssm.mapper.AccountMapper.queryAccountByUid" />
+        <collection property="members" column="uid"  select="com.ex.ssm.mapper.MemberMapper.queryMemberByUid" />
+    </resultMap>
+    <insert id="insertBatch">
+        insert into user(username,password,address,phone)
+        values
+        <foreach collection="list" item="u" separator=",">
+            (#{u.username},#{u.password},#{u.address},#{u.phone})
+        </foreach>
+    </insert>
+</mapper>

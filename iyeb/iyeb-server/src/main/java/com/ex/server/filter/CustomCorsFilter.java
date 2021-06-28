@@ -1,0 +1,45 @@
+package com.ex.server.filter;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+
+public class CustomCorsFilter implements Filter {
+
+    @Override
+    public void destroy() {
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+        response.setHeader("Vary", "Origin");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE,PUT");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Credentials","true");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With,x-token");
+        response.setHeader("Access-Control-Expose-Headers","Content-Disposition");
+        String method= request.getMethod();
+        if (method.equals("OPTIONS")){
+            response.setStatus(200);
+            return ;
+        }
+
+        chain.doFilter(req, res);
+
+    }
+
+    @Override
+    public void init(FilterConfig arg0) throws ServletException {
+
+    }
+
+}

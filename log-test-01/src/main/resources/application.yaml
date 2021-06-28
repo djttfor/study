@@ -1,0 +1,9 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    org:
+      thymeleaf: info
+      springframework.boot.autoconfigure.logging: info
+  config: classpath:log4j2.xml

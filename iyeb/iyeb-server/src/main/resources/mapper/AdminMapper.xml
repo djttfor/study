@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ex.server.mapper.AdminMapper">
+
+    <resultMap id="selectAll" type="admin">
+        <id property="id" column="aid"/>
+        <result property="name" column="a_name"/>
+        <result property="telephone" column="a_telephone"/>
+        <result property="address" column="a_address"/>
+        <result property="enabled" column="a_enabled"/>
+        <result property="userFace" column="a_user_face"/>
+        <result property="gender" column="a_gender"/>
+        <result property="age" column="a_age"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="remark" column="a_remark"/>
+        <collection property="roles" ofType="role">
+            <id property="id" column="rid"/>
+            <result property="code" column="r_code"/>
+            <result property="name" column="r_name"/>
+            <result property="enabled" column="r_enabled"/>
+        </collection>
+    </resultMap>
+    <select id="selectAll" resultMap="selectAll">
+        select
+            a.id aid,a.name a_name,a.telephone a_telephone,a.address a_address,a.enabled a_enabled,a.user_face a_user_face,a.gender a_gender,a.age a_age ,a.gmt_create,a.gmt_modified,a.remark a_remark,
+            r.id rid,r.`code` r_code,r.`name` r_name,r.enabled r_enabled
+        from
+            t_admin a
+                LEFT JOIN
+            t_admin_role  ar on a.id = ar.aid
+                LEFT JOIN
+            t_role r
+            on ar.rid = r.id order by aid asc
+    </select>
+
+    <resultMap id="test10087" type="admin">
+        <id property="id" column="a_Id"/>
+        <result property="name" column="a_name"/>
+        <association property="adminRole" javaType="adminRole">
+            <result property="aid" column="ar_aid"/>
+            <result property="rid" column="ar_rid"/>
+        </association>
+        <collection property="roles" ofType="role">
+            <id property="id" column="r_id"/>
+            <result property="name" column="r_name"/>
+        </collection>
+
+    </resultMap>
+    <select id="test10087" resultMap="test10087">
+        select
+            a.id a_Id,a.name a_name,ar.aid ar_aid,ar.rid ar_rid, r.id r_id,r.name r_name
+        from
+            t_admin a
+                INNER JOIN
+            t_admin_role ar on  a.id = ar.aid
+                LEFT JOIN
+            t_role r on ar.rid = r.id
+        where
+            a.id = 4
+    </select>
+</mapper>

@@ -1,0 +1,92 @@
+server:
+  port: 81
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/iyeb?characterEncoding=UTF8&useUnicode=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: 1998
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      #初始连接数
+      initial-size: 10
+      #最大连接数
+      max-active: 100
+      #最小连接数0
+      min-idle: 10
+      #获取连接等待超时的时间 ms
+      max-wait: 60000
+#      #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+#      time-between-eviction-runs-millis: 2000
+#      #配置一个连接在池中最小生存的时间，单位是毫秒
+#      min-evictable-idle-time-millis: 300000
+#      max-evictable-idle-time-millis: 600000
+#      #用来测试连接是否可用的SQL语句
+#      validation-query: SELECT 1
+#      #申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+#      test-on-borrow: false
+#      #归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+#      test-on-return: false
+#      test-while-idle: true
+#      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+#      filters: stat,wall
+#      stat-view-servlet:
+#        enabled: true
+#        url-pattern: /druid/*
+  redis:
+    host: 47.112.181.157
+    port: 6379
+    password: 996exc
+    timeout: 60s
+    lettuce:
+      pool:
+        min-idle: 10
+        max-idle: 30
+        max-active: 8
+        max-wait: 10000
+  rabbitmq:
+    host: 47.112.181.157
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: /
+    #消息确认回调
+    publisher-confirm-type: correlated
+    #消息失败回调
+    publisher-returns: true
+    #手动ack
+    listener:
+      simple:
+        acknowledge-mode: manual
+
+  mail:
+    host: smtp.163.com
+    username: djttfor@163.com
+    password: VKEZFECQBRNBGQXM
+    port: 25
+
+
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    cache-enabled: false
+  type-aliases-package: com.ex.server.entity
+logging:
+  level:
+    org:
+      thymeleaf: info
+      springframework.boot.autoconfigure.logging: info
+  config: classpath:log4j2.xml
+
+jwt:
+  #jwt存储的请求头
+  tokenHeader: Authorization
+  #jwt加密使用的密钥
+  secret: The deep dark fantasy
+  #jwt的过期时间60*60*24
+  expiration: 604800
+  #jwt负载中拿到开头
+  tokenHead: Bearer
+

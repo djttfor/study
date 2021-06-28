@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="my.dao.AccountDao">
+    <select id="findAll" resultType="Account">
+        select * from account
+    </select>
+    <insert id="save" parameterType="Account">
+        insert into account(uid,acname,password,money) values (#{uid},#{acname},#{password}
+        ,#{money})
+    </insert>
+    <update id="transferIn" parameterType="Account" >
+        update account set money=money+#{money} where aid=#{aid}
+    </update>
+    <update id="transferOut" parameterType="Account">
+        update account set money=money-#{money} where aid=#{aid}
+    </update>
+    <select id="findMoneyById" parameterType="Integer" resultType="Double">
+        select money from account  where aid=#{aid}
+    </select>
+</mapper>

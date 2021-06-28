@@ -1,0 +1,21 @@
+docker images 查看本地主机上的所有镜像
+
+docker ps 查看正在运行的容器
+
+docker ps -a 查看所有容器
+
+docker start (容器id)启动已经停止的容器
+
+docker stop (容器id)
+
+docker run -itd --name centos-test centos:centos6.8 在后台运行容器,一般用此命令运行容器
+
+docker exec -it (容器id) /bin/bash 进入容器
+
+docker rm -f (容器id) 删除一个容器
+
+docker inspect -f '{{.Id}}' (容器id)  根据容器短id拿到全id
+
+docker cp 本地文件路径 ID全称:容器路径
+
+docker cp ID全称:容器文件路径 本地路径

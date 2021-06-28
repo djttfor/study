@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>a</title>
+</head>
+<body>
+<input type="button" value="登录" onclick="login()">
+</body>
+<script src="/ssm_a/js/jquery-3.3.1.min.js"></script>
+<script>
+    function login(){
+        let data = {};
+        data.username = 'jimmy';
+        data.password = '123';
+        $.ajax({
+            type:"get",
+            url:"/ssm_a/user/test",
+            contentType:"application/json;charset=utf-8",
+            dataType:"json",
+            data:data,
+            success: function (result) {
+                alert(result.message);
+            },
+            error:function (error) {
+                alert("出错了")
+            }
+        });
+    }
+</script>
+</html>

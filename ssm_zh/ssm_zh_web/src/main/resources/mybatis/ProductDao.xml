@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="my.dao.ProductDao">
+    <resultMap id="r1" type="Product">
+        <result property="pid" column="id"/>
+        <result property="productNumber" column="productNum"/>
+        <result property="productName" column="productName"/>
+        <result property="cityName" column="cityName"/>
+        <result property="departureTime" column="departureTime"/>
+        <result property="productDesc" column="productDesc"/>
+        <result property="productStatus" column="productStatus"/>
+    </resultMap>
+    <select id="findAll" resultMap="r1">
+        select * from product
+    </select>
+    <insert id="saveProduct" parameterType="product">
+        insert into product <include refid="insert1"/>
+    </insert>
+    <sql id="insert1">values (#{pid},#{productNumber},#{productName},#{cityName},#{departureTime},#{productPrice},#{productDesc},#{productStatus})</sql>
+</mapper>

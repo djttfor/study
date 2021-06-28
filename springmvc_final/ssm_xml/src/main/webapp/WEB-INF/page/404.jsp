@@ -1,0 +1,20 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: Administrator
+  Date: 2020-07-28
+  Time: 22:33
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>404</title>
+</head>
+<body>
+<div>
+    <div style="text-align: center"><h2>错误信息</h2></div>
+    <div><p style="color: pink">${stackInfo}</p></div>
+</div>
+
+</body>
+</html>

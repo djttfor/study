@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jjj</title>
+    <link rel="stylesheet" href="../css/555.css">
+</head>
+<body>
+<div id="app" >
+    <div>
+       <select v-model="pv">
+           <option disabled value="">请选择</option>
+           <option v-for="(v,i) in pvs" :value="i">
+               {{v}}
+           </option>
+       </select>
+        <select  v-model="ci">
+            <option disabled value="">请选择</option>
+            <option v-for="(v) in cities[cindex]">
+                {{v}}
+            </option>
+        </select>
+    </div>
+    <div id="d2">
+        <p :style="s2">今晚打老虎</p>
+        <button @click="pvss()">{{m1}}</button>
+    </div>
+    <div>
+        千米:<input type="text" v-model="kmeter"><i>{{ms}}</i>
+        米:<input type="text" v-model="meter">
+    </div>
+    <div @click.once="cl2" style="border: 1px solid red" >1
+        <div @click.self="cl3">2
+            <input type="text"  @keyup.left="cl4">
+        </div>
+    </div>
+    <div>
+        <input type="checkbox" v-model="c1" value="c1" @click="c11">全选
+        <input type="checkbox" v-model="c2" value="c2" @click="vm2.splice(0,vm2.length)">全不选
+        <input type="checkbox" v-model="c3" value="c3" @click="c31">反选
+        <ul>
+            <li><input type="checkbox" value="1" v-model="vm2"></li>
+            <li><input type="checkbox" value="2" v-model="vm2"></li>
+            <li><input type="checkbox" value="3" v-model="vm2"></li>
+            <li><input type="checkbox" value="4" v-model="vm2"></li>
+            <li><input type="checkbox" value="5" v-model="vm2"></li>
+        </ul>
+        <p>{{vm2}}</p>
+        <input type="text" v-model.trim="la1">
+        <span style="border: 1px solid red">{{la1}}</span>
+        <p >{{'今晚打老虎'}}</p>
+    </div>
+    <ass title="a"></ass>
+    <custom-input v-model="cui" ></custom-input>
+    <p>{{cui}}</p>
+</div>
+
+<script src="../js/vue.js"></script>
+<script src="../js/lvue.js"></script>
+</body>
+</html>

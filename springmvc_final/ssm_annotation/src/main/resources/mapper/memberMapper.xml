@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ex.ssm.mapper.MemberMapper">
+    <select id="queryMemberByUid" resultMap="byUid">
+        select m.member_name,m.desc  from member m where uid = #{uid}
+    </select>
+    <resultMap id="byUid" type="member">
+        <result property="memberName" column="member_name"/>
+        <result property="desc" column="desc"/>
+    </resultMap>
+</mapper>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>转账</title>
+</head>
+<body>
+<form action="/sm_01/user/say" method="get">
+    用户:<input type="text" name="username" > </br>
+    余额:<input type="text" name="balance" ><br/>
+    用户:<input type="text" > <br/>
+    余额:<input type="text" ><br/>
+    <input type="text" style="height:30px;width:80px"> 元
+    <input type="submit"  id="transfer" value="转账"  style="height:30px;width:50px">
+</form>
+<form method="post" enctype="multipart/form-data" action="/sm_01/user/upload">
+    请选择上传的文件:
+    <input type="file" name="file"><br>
+    <input type="submit" value="上传">
+</form>
+<br>
+<a href="/sm_01/user/download">下载</a><br>
+<a href="/sm_01/user/access">今晚那啥</a><br>
+</body>
+</html>

@@ -1,0 +1,25 @@
+a{
+    color: black;
+    text-decoration: none;
+}
+a:hover{
+    color: orange;
+}
+li:hover{
+    background: #808080;
+}
+ul li{
+    list-style: armenian;
+}
+ul{
+    background:rgba(255,255,255,0.6);
+
+}
+
+.fox{
+    width: 20%;
+    background-image: url("../images/img.png");
+    background-size: 100% 100%;
+    border-radius: 10px;
+    opacity: 1;
+}
