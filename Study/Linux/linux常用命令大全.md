@@ -100,7 +100,7 @@ touch xxx
 cat aaa.log
 ```
 
-### 18.显示一页数据,空格显示下一行,回车显示下一页 ,按q退出
+### 18.显示一页数据,空格显示下一页,回车显示下一行,按q退出
 
 ```
 more xxx 
@@ -507,4 +507,42 @@ top  #按q退出
 ```
 netstat -anptl pid
 ```
+
+### 37.根据进程id查看占用的端口号
+
+```bash
+安装net-tools工具
+yum install net-tools
+ 
+netstat -lnp | grep 8031
+```
+
+### 38.根据端口号查看占用的进程
+
+```bash
+netstat -tunlp | grep 3000
+```
+
+### 39.netstat 查看网络连接
+
+如果没有该命令输入以下
+
+```
+yum install net-tools
+```
+
+```bash
+-a (all)显示所有选项，默认不显示LISTEN相关
+-t (tcp)仅显示tcp相关选项
+-u (udp)仅显示udp相关选项
+-n 拒绝显示别名，能显示数字的全部转化成数字。
+-l 仅列出有在 Listen (监听) 的服務状态
+-p 显示建立相关链接的程序名
+-r 显示路由信息，路由表
+-e 显示扩展信息，例如uid等
+-s 按各个协议进行统计
+-c 每隔一个固定时间，执行该netstat命令。
+```
+
+
 

@@ -760,6 +760,14 @@ chmod 777 docker-compose
 docker-compose version
 ```
 
+查看日志
+
+```
+docker-compose logs -f
+```
+
+
+
 ## springboot + mysql 实战
 
 ### yaml
@@ -967,5 +975,125 @@ alias ll='ls -l'
 source ~/.bashrc
 ```
 
+## IDEA连接服务器的Docker
 
+### 创建一个文件夹生成密钥
+
+```bash
+#在docker服务器，生成CA私有和公共密钥
+openssl genrsa -aes256 -out ca-key.pem 4096 #记住输入的密码
+
+openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem #这里的最后一部要输入服务器ip地址
+
+#有了CA后，可以创建一个服务器密钥和证书签名请求(CSR)
+openssl genrsa -out server-key.pem 4096
+
+openssl req -subj "/CN=服务器ip" -sha256 -new -key server-key.pem -out server.csr
+
+#接着，用CA来签署公共密钥:
+echo subjectAltName = IP:服务器ip,IP:0.0.0.0" >> extfile.cnf
+echo extendedKeyUsage = serverAuth >> extfile.cnf
+
+#生成key：
+openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+  
+#创建客户端密钥和证书签名请求:
+openssl genrsa -out key.pem 4096
+
+openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+
+#修改extfile.cnf：
+echo extendedKeyUsage = clientAuth > extfile-client.cnf
+
+#生成签名私钥：
+openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out cert.pem -extfile extfile-client.cnf
+```
+
+### 将Docker服务停止，然后修改docker服务文件
+
+```bash
+systemctl stop docker.socket
+
+vim /usr/lib/systemd/system/docker.service
+```
+
+docker.service
+
+修改内容在ExecStart那一行
+
+```ini
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network-online.target firewalld.service containerd.service
+Wants=network-online.target
+Requires=docker.socket containerd.service
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --tlsverify --tlscacert=/home/docker/ca.pem --tlscert=/home/docker/server-cert.pem --tlskey=/home/docker/server-key.pem -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutSec=0
+RestartSec=2
+Restart=always
+
+# Note that StartLimit* options were moved from "Service" to "Unit" in systemd 229.
+# Both the old, and new location are accepted by systemd 229 and up, so using the old location
+# to make them work for either version of systemd.
+StartLimitBurst=3
+
+# Note that StartLimitInterval was renamed to StartLimitIntervalSec in systemd 230.
+# Both the old, and new name are accepted by systemd 230 and up, so using the old name to make
+# this option work for either version of systemd.
+StartLimitInterval=60s
+
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+
+# Comment TasksMax if your systemd version does not support it.
+# Only systemd 226 and above support this option.
+TasksMax=infinity
+
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+
+# kill only the docker process, not all processes in the cgroup
+KillMode=process
+OOMScoreAdjust=-500
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 重启服务
+
+```bash
+systemctl daemon-reload
+systemctl restart docker.service 
+
+#查看服务状态
+systemctl status docker.service
+
+● docker.service - Docker Application Container Engine
+   Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; vendor preset: disabled)
+   Active: active (running) since Mon 2021-08-02 10:57:03 CST; 25min ag
+```
+
+### 使用证书连接
+
+复制`ca.pem`,`cert.pem`,`key.pem`三个文件到客户端，如放入E:/docker/下，在IDEA连接
+
+![image-20210802112405458](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210802112405458.png)
+
+```dockerfile
+"C:\Program Files\Docker\Docker\resources\bin\docker-compose.exe" -f E:\Java\plumemo\dockememo\docker-compose.yml
+```
 

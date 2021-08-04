@@ -1458,13 +1458,38 @@ export default {
 
 ```
 
+## require.context的使用
+
+```js
+const modulesFiles = require.context("./images", true, /list_+[0-9]*\.png$/);
+
+      const modules = modulesFiles.keys().reduce((modules, modulePath) => {
+        const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, "$1");
+        const value = modulesFiles(modulePath);
+        modules[moduleName] = value;//如果是export default，请用value.default
+        return modules;
+      }, {});
+```
+
+
+
 ## 清除npm的缓存
 
 先把node_module文件夹删了
 
-```
+```js
 npm cache clean --force
 ```
+
+## 删除node_modules
+
+```js
+npm install rimraf -g //安装
+
+rimraf node_modules //删除node_modules
+```
+
+
 
 ## 管理员模式CMD下删除文件
 
@@ -1485,5 +1510,274 @@ npm install js-file-download
 ```
 npm install sockjs-client
 npm install stompjs
+```
+
+## 客户端渲染与服务端渲染
+
+### 客户端渲染
+
+1. 浏览器通过AJAX向服务端（Java servlet）发送http请求数据接口
+2. 服务端将获取的接口数据封装成JSON，响应给客户端
+3. 浏览器拿到JSON就进行渲染html页面，生产DOM元素，然后将页面展示给用户
+
+![image-20210713212515303](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210713212515303.png)
+
+#### 客户端渲染的特点
+
+1. 服务端只响应数据，不生成html页面
+2. 浏览器负责发送请求获取服务端的数据，然后渲染成html页面
+
+### 服务端渲染
+
+1. 浏览器向服务器发送http请求数据接口
+2. 服务端会生成html页面，响应给浏览器
+3. 浏览器直接将接收到html页面进行展示
+
+![image-20210713212924287](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210713212924287.png)
+
+#### 服务端渲染特点
+
+1. 在服务端生成html页面
+2. 浏览器只负责显示html元素内容
+
+### 为什么使用服务器端渲染（SSR）
+
+与传统的SPA（单页面应用程序）相比，服务端渲染的优势主要有哪些：
+
+- 更好的SEO，由于搜索引擎爬虫抓取工具可以直接查看完全渲染的页面
+  如果你的应用程序初始展示Loading图，然后通过Ajax获取内容，抓取工具并不会等待异步完成后再进行抓取页面内容，也就是说，如果SEO对你的站点至关重要，而你的页面又是异步获取内容，则你可能需要服务端渲染
+- 更快的内容到达时间（首屏加载更快），因为服务端只需要返回渲染好的HTML，这部分代码量小的，所以用户体验更好
+
+使用服务器端渲染（SSR）时还需要有一些权衡之处：
+
+- 首先是开发成本比较高，比如某些生命周期钩子函数（如beforeCreate、created）能同时运行在服务端和客户端，因此第三方库要做特殊处理，才能在服务器渲染应用程序中运行
+- 由于服务端渲染要用Nodejs做中间层，所以部署项目时，需要处于Node.js server运行环境。在高流量环境下，还要做好服务器负载和缓存策略。
+
+## 使用nuxt.js构建项目
+
+### 没安装npx，先安装
+
+```
+npm i -g npx
+```
+
+### 构建项目，随后出现的选项请自行选择
+
+```
+npx create-nuxt-app 项目名称
+```
+
+### package.json的配置
+
+```
+"dependencies": {
+    "@nuxtjs/axios": "^5.13.6",
+    "ant-design-vue": "^1.7.6",
+    "core-js": "^3.15.1",
+    "nuxt": "^2.15.7"
+  },
+  "devDependencies": {
+    "babel-plugin-import": "^1.13.3",
+    "cross-env": "^7.0.3",
+    "less": "^3.9.0",
+    "less-loader": "^6.0.0"
+  }
+```
+
+### 安装依赖与启动项目
+
+```
+npm install
+
+npm run dev
+```
+
+## nuxt配置axios代理
+
+### 安装
+
+``` 
+npm install @nuxtjs/axios 
+npm install @nuxtjs/proxy --save-dev
+```
+
+### 在根目录下创建env.js,加入以下内容
+
+```js
+module.exports = {
+    dev: {
+        MODE: 'development',
+        ENV_API: 'http://localhost:8086'   //测试服务器地址
+    },
+    pro: {
+        MODE: 'production',
+        ENV_API: 'http://localhost:8086'  // 正式服务器地址
+    }
+}
+```
+
+### nuxt.config.js配置代理
+
+```js
+const env = require('./env')
+export default {
+  // Global page headers: https://go.nuxtjs.dev/config-head
+  head: {
+    title: 'y',
+    htmlAttrs: {
+      lang: 'en'
+    },
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { hid: 'description', name: 'description', content: '' },
+      { name: 'format-detection', content: 'telephone=no' }
+    ],
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ]
+  },
+
+  // Global CSS: https://go.nuxtjs.dev/config-css
+  css: [
+    'ant-design-vue/dist/antd.css'
+  ],
+
+  // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
+  plugins: [
+    '@/plugins/antd-ui'
+  ],
+
+  // Auto import components: https://go.nuxtjs.dev/config-components
+  components: true,
+
+  // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
+  buildModules: [
+  ],
+
+  // Modules: https://go.nuxtjs.dev/config-modules
+  modules: [
+    // https://go.nuxtjs.dev/axios
+    '@nuxtjs/axios',
+    '@nuxtjs/proxy',
+  ],
+
+  // Build Configuration: https://go.nuxtjs.dev/config-build
+  build: {
+  },
+  axios: {
+    proxy: true
+  },
+  proxy: {
+    '/api/blog/': {
+      target: env[process.env.MODE].ENV_API,
+      secure: false,
+      changeOrigin: true,
+      pathRewrite: {
+        '^/api/blog/': '/api/plumemo-service/',
+        changeOrigin: true
+      }
+    },
+  },
+}
+```
+
+### package.json配置
+
+```js
+"scripts": {
+    "dev": "cross-env MODE=dev nuxt",
+    "build": "cross-env MODE=pro nuxt build",
+    "start": "cross-env MODE=pro nuxt start",
+    "generate": "nuxt generate"
+  }
+```
+
+### axios请求示例
+
+#### 在store创建index.js
+
+```js
+export const state = () => ({
+    
+})
+
+export const actions = {
+    getSocial() {
+        return this.$axios.$get('/api/blog/auth/social/v1/info');
+    }
+}
+```
+
+#### 调用
+
+```js
+test1(){
+      this.$store.dispatch('getSocial').then(res=>{
+        console.log(res)
+      }).catch(err=>{
+        console.log('出错了：'+err)
+      })
+    }
+```
+
+### pm2部署项目
+
+#### 安装pm2
+
+安装之前先安装node
+
+```
+npm install pm2 -g
+```
+
+创建软链接
+
+```
+ln -s pm2的路径 /usr/local/bin
+```
+
+查看是否安装成功
+
+```
+pm2 -v
+```
+
+#### pm2日志路径
+
+```
+/root/.pm2
+```
+
+#### 把nuxt项目拷贝到linux服务器上
+
+切记如果开发阶段配置了代理
+
+```
+npm run build
+```
+
+#### 查看pm2管理的项目
+
+```
+pm2 ls
+```
+
+#### 关闭项目
+
+```
+pm2 stop id
+```
+
+#### 启动项目
+
+```
+pm2 start npm --name "blog" -- run start
+```
+
+#### 删除项目
+
+```
+pm2 delet
 ```
 

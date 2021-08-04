@@ -9,7 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @MapperScan("com.ex.mapper")
 public class MybatisPlusConfig {
-
+//13141519232625232635533123123312
+    //
     @Bean
     public ConfigurationCustomizer configurationCustomizer() {
         return configuration -> {

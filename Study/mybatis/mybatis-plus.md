@@ -1,6 +1,79 @@
 ### 1.1 maven依赖
 
-详见mybatis-plus-maven依赖
+```xml
+   <!--spring-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.2.5.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>5.2.5.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.2.5.RELEASE</version>
+        </dependency>
+        <!--mybatis-plus-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+        <!--log4j2-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.13.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.13.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.13.3</version>
+        </dependency>
+
+        <!--junit5-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!--mysql驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.32</version>
+        </dependency>
+        <!--druid连接池-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.23</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.6</version>
+        </dependency>
+```
+
+
 
 ### 1.2 spring配置
 
@@ -8,8 +81,7 @@
 
 ```java
 @Configuration
-@ComponentScan(value = "com.ex" ,excludeFilters = {@ComponentScan.Filter({Controller.class})})
-@PropertySource("classpath:druid.properties")
+@ComponentScan("com.ex")
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 public class ISpringConfig {
@@ -55,7 +127,109 @@ public class ISpringConfig {
 }
 ```
 
-#### 1.2.2 xml配置
+#### 1.2.2 druid.properties配置
+
+```java
+@Repository
+@PropertySource("classpath:druid.properties")
+public class DruidDataSourceConfig{
+    @Value("${druid.driverClassName}")
+    String driverClassName;
+    @Value("${druid.url}")
+    String url;
+    @Value("${druid.username}")
+    String username;
+    @Value("${druid.password}")
+    String password;
+    @Value("${druid.initialSize}")
+    Integer initialSize;
+    @Value("${druid.maxActive}")
+    Integer maxActive;
+    @Value("${druid.maxWait}")
+    Long maxWait;
+
+    public String getDriverClassName() {
+        return driverClassName;
+    }
+
+    public void setDriverClassName(String driverClassName) {
+        this.driverClassName = driverClassName;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Integer getInitialSize() {
+        return initialSize;
+    }
+
+    public void setInitialSize(Integer initialSize) {
+        this.initialSize = initialSize;
+    }
+
+    public Integer getMaxActive() {
+        return maxActive;
+    }
+
+    public void setMaxActive(Integer maxActive) {
+        this.maxActive = maxActive;
+    }
+
+    public Long getMaxWait() {
+        return maxWait;
+    }
+
+    public void setMaxWait(Long maxWait) {
+        this.maxWait = maxWait;
+    }
+
+}
+```
+
+
+
+```properties
+druid.url=jdbc:mysql://localhost:3306/base?characterEncoding=UTF8
+#可以缺省
+druid.driverClassName=com.mysql.jdbc.Driver
+druid.username=root
+druid.password=1998
+
+
+##初始连接数，默认0
+druid.initialSize=10
+#最大连接数，默认8
+druid.maxActive=30
+#最小闲置数
+druid.minIdle=10
+#获取连接的最大等待时间，单位毫秒
+druid.maxWait=2000
+```
+
+
+
+#### 1.2.3 xml配置
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -273,6 +447,79 @@ select(Predicate<TableFieldInfo> predicate)
 select(i->i.getProperty().equals("balance")||i.getProperty().equals("password"))
 //这个方法效果同上
 select(Class<T> entityClass, Predicate<TableFieldInfo> predicate)
+```
+
+### 1.9 mybatis插件
+
+springboot使用时在mybatis-plus配置类下注入bean即可
+
+#### executor插件
+
+```java
+@Intercepts(
+        {
+            @Signature(type = Executor.class,method = "query",args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
+            @Signature(type = Executor.class,method = "query",args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
+            @Signature(type = Executor.class,method = "update",args = {MappedStatement.class, Object.class})
+        }
+)
+@Slf4j
+public class ExecutorPrintSQLPlugin implements Interceptor {
+    @Override
+    public  Object  intercept(Invocation invocation) throws Throwable {
+        Object[] args = invocation.getArgs();
+        MappedStatement ms = (MappedStatement) args[0];
+        Object params = args[1];
+        BoundSql boundSql;
+        if(args.length==4||args.length==2){
+            boundSql =  ms.getBoundSql(params);
+        }else{
+            boundSql = (BoundSql) args[5];//获取分页插件的sql
+        }
+        String message = getSqlStr(boundSql,ms);
+        log.info("Sql语句:"+message);
+        return invocation.proceed();
+    }
+    public String getSqlStr(BoundSql boundSql,MappedStatement ms){
+        StringBuilder logStr = new StringBuilder();
+        logStr.append(boundSql.getSql().replaceAll("\n|\\s+"," "));
+        Object parameterObject = null;
+        try{
+            List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+            if (parameterMappings.size()>0 &&
+                    (null != ( parameterObject = boundSql.getParameterObject()))) {
+                logStr.append("\n").append(" Parameters:");
+
+                TypeHandlerRegistry typeHandlerRegistry = ms.getConfiguration().getTypeHandlerRegistry();
+
+                MetaObject metaObject = new Configuration().newMetaObject(parameterObject);
+                for(int i=0;i<parameterMappings.size();i++){
+                    Object value ;
+                    ParameterMapping parameterMapping = parameterMappings.get(i);
+                    String property = parameterMapping.getProperty();
+                    //sql执行只需要一个参数的时候
+                    if (boundSql.hasAdditionalParameter(property)) {
+                        value = boundSql.getAdditionalParameter(property);
+                    } else if(typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())){
+                        value = parameterObject;
+                    }else{
+                        //多个参数
+                        value = metaObject.getValue(property);
+                    }
+                    String simpleName = value.getClass().getSimpleName();
+                    if(i==parameterMappings.size()-1){
+                        logStr.append(value).append("(").append(simpleName).append(").");
+                    }else{
+                        logStr.append(value).append("(").append(simpleName).append(")").append(",");
+                    }
+                }
+            }
+        }catch (Exception e){
+            log.info("SQL记录插件出错了,当前参数为{},异常信息:{}",parameterObject,e);
+        }
+        return logStr.toString();
+    }
+}
 ```
 
 ## 2. mybatis-plus代码生成器

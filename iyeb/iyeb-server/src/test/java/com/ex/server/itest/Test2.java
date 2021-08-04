@@ -24,10 +24,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class Test2 {
     @Autowired(required = false)
     MenuMapper menuMapper;
@@ -111,8 +113,9 @@ public class Test2 {
         System.out.println("o为null");
     }
 
+    ThreadLocal<Integer> counter = new ThreadLocal<>();
     @Test
-    public void test6(){
+    public void test6() throws InterruptedException {
         List<Menu> menus = menuService.list(
                 Wrappers.lambdaQuery(Menu.class)
                         .select(s -> "id".equals(s.getProperty()) ||
@@ -120,12 +123,50 @@ public class Test2 {
                                 "path".equals(s.getProperty()) ||
                                 "name".equals(s.getProperty())
                         ));
-
-        Menu menu = findChild(menus, menus.get(0));
-        System.out.println(menu);
+        counter.set(0);
+        long start = System.nanoTime();
+        //Menu menu = findChild(menus, 0);//精简后的递归
+        //Menu menu = findChild(menus, menus.get(0));//精简前的递归
+        Menu menu = findChild(menus);//使用stack解决，无递归
+        long end = System.nanoTime() - start;
+        System.out.println("循环次数："+counter.get());
+        System.out.println("耗时："+end+"ns");
+        List<Menu> children = menu.getChildren();
+        StringBuilder sb = new StringBuilder();
+        sb.append(1).append(":");
+        for (Menu child : children) {
+            sb.append(child.getId()).append(",");
+            List<Menu> childChildren = child.getChildren();
+            StringBuilder childSb = new StringBuilder();
+            childSb.append(child.getId()).append(":");
+            for (Menu childChild : childChildren) {
+                childSb.append(childChild.getId()).append(",");
+            }
+            System.out.println(childSb);
+        }
+        System.out.println(sb);
+    }
+    public Menu findChild(List<Menu> menus,int index){
+        Menu parentMenu = menus.get(index);
+        int size = menus.size();
+        for (int i = index+1; i < size; i++) {
+            Integer count = counter.get();
+            counter.set(++count);
+            Menu menu = menus.get(i);
+            if(parentMenu.getId().equals(menu.getParentId())){
+                if(parentMenu.getChildren()==null){
+                    parentMenu.setChildren(new ArrayList<>());
+                }
+                parentMenu.getChildren().add(menu);
+                findChild(menus,i);
+            }
+        }
+        return parentMenu;
     }
     public Menu findChild(List<Menu> menus,Menu parentMenu){
         for (Menu menu : menus) {
+            Integer count = counter.get();
+            counter.set(++count);
             //匹配子节点
             if (menu.getParentId().equals(parentMenu.getId())) {
                 //将子节点添加到父节点中
@@ -139,6 +180,43 @@ public class Test2 {
         }
         return parentMenu;
     }
+    public Menu findChild(List<Menu> menus){
+        //记录索引
+        Stack<Integer> stack = new Stack<>();
+        //集合大小
+        int MenuSize = menus.size();
+        final Integer ROOT_INDEX = 0;
+        stack.push(ROOT_INDEX);
+        Menu root = menus.get(ROOT_INDEX);
+
+        while (!stack.isEmpty()){
+            Integer r = stack.pop();
+            Menu rMenu ;
+            if(r.equals(ROOT_INDEX)){
+                rMenu = root;
+            }else{
+                rMenu = menus.get(r);
+            }
+            if(MenuSize == r+1){
+                continue;
+            }
+            for (int j = r+1; j < MenuSize; j++) {
+                Integer count = counter.get();
+                counter.set(++count);
+                Menu child = menus.get(j);
+                if(rMenu.getId().equals(child.getParentId())){
+                    if (rMenu.getChildren()==null) {
+                        rMenu.setChildren(new ArrayList<>());
+                    }
+                    rMenu.getChildren().add(child);
+                    stack.push(j);
+                }
+            }
+        }
+        return root;
+    }
+
+
 
     @Test
     public void test7() throws IOException {
@@ -173,7 +251,12 @@ public class Test2 {
 }
 class B1{
     public static void main(String[] args) throws IOException, ParseException {
-
+        Stack<Integer> stack = new Stack<>();
+        stack.addAll(Arrays.asList(1,2,3,4,5));
+        System.out.println(stack.get(4));
+        stack.push(10);
+        stack.add(10);
+        stack.forEach(System.out::println);
     }
 
 

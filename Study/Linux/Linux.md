@@ -411,8 +411,8 @@ ln a1 a
 类似windows下的快捷方式。
 
 ```
-ln -s [软链接名] [源文件]
-ln -s a2 a
+ln -s [源文件] [软连接名]
+ln -s /usr/local/nginx/sbin/nginx /usr/local/bin/nginx
 ```
 
 ## 4.磁盘管理

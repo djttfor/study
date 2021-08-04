@@ -1,21 +1,22 @@
 package com.ex.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+import com.ex.entity.User;
+import com.ex.mapper.UserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.util.List;
+
+
+@RestController
 public class HelloWorldController {
-    @Value("${person.name}")
-    String name;
-    @Value("${person.age}")
-    Integer age;
-    @Value("${person.addr}")
-    String addr;
+    @Autowired
+    UserMapper userMapper;
+
     @RequestMapping("/hello")
-    @ResponseBody
-    public String hello(){
-        return "name:"+name+",age:"+age+",addr:"+addr;
+    public List<User> hello(){
+
+        return userMapper.selectList(null);
     }
 }

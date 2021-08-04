@@ -32,7 +32,7 @@
 
 数据库事务的隔离级别有4个，由低到高依次为**Read uncommitted、Read committed、Repeatable read、**Serializable**，这四个级别可以逐个解决**脏读、不可重复读、幻读这几类**问题。
 
-![image-20210113093336877](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210113093336877.png)
+![image-20210113093336877](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210113093336877.png)
 
 ##### 2.1 Read uncommitted
 
@@ -64,25 +64,25 @@
 
 1、脏读：事务A读取了事务B更新的数据，然后B回滚操作，那么A读取到的数据是脏数据
 
-![image-20210114093656820](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210114093656820.png)
+![image-20210114093656820](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210114093656820.png)
 
 2、不可重复读：事务 A 多次读取同一数据，事务 B 在事务A多次读取的过程中，对数据作了更新并提交，导致事务A多次读取同一数据时，结果 不一致。
 
 事务A在执行读取操作，由整个事务A比较大，前后读取同一条数据需要经历很长的时间 。而在事务A第一次读取数据，比如此时读取了小明的年龄为20岁，事务B执行更改操作，将小明的年龄更改为30岁，此时事务A第二次读取到小明的年龄时，发现其年龄是30岁，和之前的数据不一样了，也就是数据不重复了，系统不可以读取到重复的数据，成为不可重复读。
 
-![image-20210114100516076](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210114100516076.png)
+![image-20210114100516076](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210114100516076.png)
 
 3、幻读：系统管理员A将数据库中所有学生的成绩从具体分数改为ABCDE等级，但是系统管理员B就在这个时候插入了一条具体分数的记录，当系统管理员A改结束后发现还有一条记录没有改过来，就好像发生了幻觉一样，这就叫幻读。
 
 事务A在执行读取操作，需要两次统计数据的总量，前一次查询数据总量后，此时事务B执行了新增数据的操作并提交后，这个时候事务A读取的数据总量和之前统计的不一样，就像产生了幻觉一样，平白无故的多了几条数据，成为幻读。
 
-![image-20210114101314904](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210114101314904.png)
+![image-20210114101314904](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210114101314904.png)
 
 假设有个表user,信息如下
 
-![image-20210114155554650](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210114155554650.png)
+![image-20210114155554650](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210114155554650.png)
 
-![image-20210114155505655](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210114155505655.png)
+![image-20210114155505655](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210114155505655.png)
 
 |                    事务A                    |        事务B        |
 | :-----------------------------------------: | :-----------------: |
@@ -144,9 +144,32 @@ set  innodb_lock_wait_timeout = 10;
 
 - TransactionDefinition.PROPAGATION_NESTED：如果当前存在事务，则创建一个事务作为当前事务的嵌套事务来运行；如果当前没有事务，则该取值等价于TransactionDefinition.PROPAGATION_REQUIRED。
 
-  ![image-20210419212004435](Transaction.assets/image-20210419212004435.png)
+  ![image-20210419212004435](https://tuchuang-1306293030.cos.ap-guangzhou.myqcloud.com/img/image-20210419212004435.png)
 
-#### 6.自定义事务管理器
+#### 6. @Transactional失效的场景
+
+- @Transactional 应用在非 public 修饰的方法上
+- 同一个类中非事务方法调用了事务方法
+- 事务的传播机制设置不当
+- 异常被catch住，没有抛给spirng或者触发事务回滚的异常设定为非RuntimeException或非Error
+
+#### 7.事务传播机制的测试
+
+>方法A、B是不同Service类的事务方法，在方法A中调用方法B，方法A的传播机制固定与方法B所有的传播机制匹配来进行测试
+
+| Propagation   | 测试结果                                                     |
+| ------------- | ------------------------------------------------------------ |
+| REQUIRED      | **方法A**全部正常回滚，**方法B**前三个正常回滚，接着的后两个不回滚，**NEVER时**时会直接抛**IllegalTransactionStateException**异常，最后一个正常回滚 |
+| SUPPORTS      | **方法A**全部不回滚，**方法B** **MANDATORY**时会抛**IllegalTransactionStateException**异常，其他全部不回滚 |
+| MANDATORY     | 无论**方法B**的传播机制如何变化，**方法A**都会直接抛出**IllegalTransactionStateException**异常 |
+| REQUIRES_NEW  | **与REQUIRED的结果一致**                                     |
+| NOT_SUPPORTED | **与SUPPORTS的结果一致**                                     |
+| NEVER         | **与SUPPORTS的结果一致**                                     |
+| NESTED        | **与REQUIRED的结果一致**                                     |
+
+
+
+#### 8.自定义事务管理器
 
 ```java
 @Component

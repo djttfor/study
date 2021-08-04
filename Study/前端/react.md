@@ -297,7 +297,7 @@ class Btn extends React.Component{
 export default Btn
 ```
 
-如果想传递自己的参数则这样做
+如果想传递自己的参数则这样做，**注意**：handleClick里面的形参是相反的，也就是handleClick（id,e）
 
 ```react
 render(){
@@ -1266,6 +1266,12 @@ class Mouse extends PureComponent{
 >
 >使用React路由简单来说，就是配置路径与组件配对
 
+#### 路由的理解
+
+>一个路由就是一个映射关系。
+>
+>value可能是component或者function
+
 #### 基本使用
 
 ##### 安装
@@ -1328,11 +1334,394 @@ export default class RouterTest extends PureComponent {
 <button onClick={()=>{this.props.history.go(-1)}}>返回上一页</button>
 ```
 
-#### 默认路由
+![image-20210701181304215](C:\Users\86183\AppData\Roaming\Typora\typora-user-images\image-20210701181304215.png)
 
-打开页面进入的路由，路径为’/‘就是默认路由
+#### Switch与Redirect的使用
 
-```js
-<Route path='/' component={First}></Route>
+Switch的作用是只匹配一次路由，Redirect的作用相当于default，当没有路径匹配时跳去的路径
+
+```react
+<Switch>
+    <Route path='/first' component={First}></Route>
+    <Route path='/second' component={Second}></Route>
+    <Redirect to='/first'></Redirect>
+</Switch>
+```
+
+```react
+ <div className='sidebar'>
+                    <div
+                        id='l1'>
+                        <NavLink
+                            onClick={this.handleClick.bind(this, 'l1')}
+                            to='/first'
+                            className={selectedId === 'l1' ? 'clicked' : 'clckho'}
+                        >页面一</NavLink></div>
+                    <div
+                        id='l2'>
+                        <NavLink
+                            onClick={this.handleClick.bind(this, 'l2')}
+                            to='/second'
+                            className={selectedId === 'l2' ? 'clicked' : 'clckho'}
+                        >
+                            页面二</NavLink>
+                    </div>
+                </div>
+```
+
+### 使用axios
+
+#### 安装
+
+```bash
+yarn add axios
+```
+
+#### 配置axios.js
+
+```react
+import axios from 'axios'
+
+const service = axios.create({
+  baseURL: 'http://localhost:81',
+})
+
+// //request interceptor
+// service.interceptors.request.use(
+//   config => {
+
+//     if (store.getters.token) {
+//       config.headers['Authorization'] = 'Bearer' + getToken()
+//     }
+//     return config
+//   },
+//   error => {
+//     console.log(error) // for debug
+//     return Promise.reject(error)
+//   }
+// )
+
+// response interceptor
+service.interceptors.response.use(
+  response => {
+    return response.data
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+
+export default service
+```
+
+### 前端配置代理解决跨域
+
+#### 方式一
+
+在package.json下添加
+
+同时要把axios请求的端口号与客户端的端口保持一致，缺点就是只能代理一个地址
+
+```react
+ "proxy": "http://localhost:81",
+   // "proxy": "https://www.bygit.cn/",
+```
+
+#### 方式二
+
+在src下创建setupProxy.js ,加入下面的内容，该配置可以配置多个
+
+```react
+const proxy = require('http-proxy-middleware')
+
+module.exports = function (app) {
+    app.use(
+        proxy('/api',{//遇见/api前缀的请求，就会触发该代理配置
+            target: 'http://localhost:81',//请求发给谁
+            changeOrigin: true,//控制服务器收到的响应头中的Host字段的值
+            pathRewrite: {'^/api':''}
+        })
+    )
+}
+
+const proxy = require('http-proxy-middleware')
+
+module.exports = function (app) {
+    app.use(
+        proxy('/api/blog',{//遇见/api前缀的请求，就会触发该代理配置
+           // target: 'https://www.bygit.cn/',//请求发给谁
+            target: 'http://106.55.6.73/',
+            changeOrigin: true,//控制服务器收到的响应头中的Host字段的值
+            pathRewrite: {'^/api/blog':'/api/plumemo-service'}
+        })
+    )
+}
+```
+
+### Redux
+
+#### redux是什么
+
+- redux是一个专门用于做状态管理的JS库
+- 它可以用在react，angular，vue等项目中，但基本与react配合使用
+- 作用：集中式管理react应用中多个组件共享得到状态
+
+#### 什么情况下用redux
+
+- 某个组件的状态，需要让其他组件可以随时拿到
+- 一个组件需要改变另一个组件的状态
+- 总体原则：能不用就不用，如果不用比较吃力才考虑使用
+
+#### 原理图
+
+![image-20210703092625104](C:\Users\86183\AppData\Roaming\Typora\typora-user-images\image-20210703092625104.png)
+
+#### 安装
+
+```bash
+yarn add redux
+```
+
+#### 基本使用
+
+创建store.js
+
+```react
+import {createStore} from 'redux';
+import countReduces from './reducer';
+//createStore函数用来接收reducer函数作为参数，返回一个新的Store对象
+const store = createStore(countReduces)
+export default store
+```
+
+reducer.js
+
+```react
+const initState = 0
+function countReduces (preState=initState,action) {
+    const {type,data} = action
+    switch(type){
+        case 'increment': 
+            return preState + data
+        case 'decrement': 
+            return preState - data
+        default:
+            return preState
+    }
+}
+
+export default countReduces
+```
+
+storeDemo.js
+
+```react
+import React, { Component } from 'react'
+import store from '.'
+
+export default class StoreDemo extends Component {
+    constructor(props) {
+        super(props)
+    
+
+        this.increment = this.increment.bind(this)
+        this.decrement = this.decrement.bind(this)
+        this.incrementIfOdd = this.incrementIfOdd.bind(this)
+        this.incrementIfAsync = this.incrementIfAsync.bind(this)
+    
+    }
+
+    componentDidMount() {
+        store.subscribe(()=>{
+            this.setState({})
+        })
+    }
+    
+    
+    
+    increment(){
+        const {value} = this.addNum
+        store.dispatch({type: 'increment',data: value*1})
+    }
+    decrement(){
+        const {value} = this.addNum
+        store.dispatch({type: 'decrement',data: value*1})
+    }
+    incrementIfOdd(){
+        if(store.getState() % 2 !== 0){
+            const {value} = this.addNum
+            store.dispatch({type: 'increment',data: value*1})
+        }
+    }
+    incrementIfAsync(){
+        const {value} = this.addNum
+        store.dispatch(()=>{
+            setTimeout(()=>{
+                store.dispatch({type: 'increment',data: value*1})
+            },500)
+        })
+    }
+
+    render() {
+        return (
+            <div>
+                <p>{store.getState() }</p>
+                <select ref={c=> this.addNum = c }>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+                <button onClick={this.increment}>+</button>
+                <button onClick={this.decrement}>-</button>
+                <button onClick={this.incrementIfOdd}>奇数加</button>
+                <button onClick={this.incrementIfAsync}>异步加</button>
+            </div>
+        )
+    }
+}
+```
+
+### react-redux
+
+安装
+
+```
+yarn add react-redux
+```
+
+父组件
+
+```react
+import ReactReduxTest from '../../store/reactReduxTest'
+import { connect } from 'react-redux'
+
+
+const mapStateToProps = (state)=>{
+    return {sum: state}
+}
+
+const mapDispatchToProps = (dispatch)=>{
+    return {
+        increment: num => dispatch({type: 'increment',data: num*1}),
+        decrement: num => dispatch({type: 'decrement',data: num*1}),
+        incrementAsync: (num,time) => {
+            setTimeout(()=>{
+                dispatch({type: 'increment',data: num*1})
+            },time)
+        }
+    }
+}
+
+export const Count =  connect(mapStateToProps,mapDispatchToProps)(ReactReduxTest)
+```
+
+子组件
+
+```react
+import React, { Component } from 'react'
+
+export default class ReactReduxTest extends Component {
+    constructor(props) {
+        super(props)
+        this.increment = this.increment.bind(this)
+        this.decrement = this.decrement.bind(this)
+        this.incrementIfOdd = this.incrementIfOdd.bind(this)
+        this.incrementIfAsync = this.incrementIfAsync.bind(this)
+    
+    }
+
+    increment(){
+        const {value} = this.addNum
+        this.props.increment(value)
+    }
+    decrement(){
+        const {value} = this.addNum
+        this.props.decrement(value)
+    }
+    incrementIfOdd(){
+        if(this.props.sum % 2 !== 0){
+            const {value} = this.addNum
+            this.props.increment(value)
+        }
+    }
+    incrementIfAsync(){
+        const {value} = this.addNum
+        this.props.incrementAsync(value,500)
+    }
+
+    render() {
+        return (
+            <div>
+                <p>{this.props.sum }</p>
+                <select ref={c=> this.addNum = c }>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+                <button onClick={this.increment}>+</button>
+                <button onClick={this.decrement}>-</button>
+                <button onClick={this.incrementIfOdd}>奇数加</button>
+                <button onClick={this.incrementIfAsync}>异步加</button>
+            </div>
+        )
+    }
+}
+```
+
+使用
+
+```react
+ <Provider store={store}>
+            <Count />
+        </Provider>
+```
+
+### react启动修改端口号
+
+在package.json下修改scripts
+
+```
+"start": "set PORT=9001 && react-scripts start",
+```
+
+### react打包部署
+
+```bash
+#安装此模块
+npm install -g serve 
+#打包项目
+yarn build
+#或
+npm run build
+#启动
+serve build
+#指定端口号启动
+serve -l 8888 build
+```
+
+```
+  ListImg: [
+            {img: 'https://image.bygit.cn/list_01.png'},
+            {img: 'https://image.bygit.cn/list_02.png'},
+            {img: 'https://image.bygit.cn/list_03.png'},
+            {img: 'https://image.bygit.cn/list_04.png'},
+            {img: 'https://image.bygit.cn/list_05.png'},
+            {img: 'https://image.bygit.cn/list_06.png'},
+            {img: 'https://image.bygit.cn/list_07.png'},
+            {img: 'https://image.bygit.cn/list_08.png'},
+            {img: 'https://image.bygit.cn/list_09.png'},
+            {img: 'https://image.bygit.cn/list_10.png'},
+            {img: 'https://image.bygit.cn/list_11.png'},
+            {img: 'https://image.bygit.cn/list_12.png'},
+            {img: 'https://image.bygit.cn/list_13.png'},
+            {img: 'https://image.bygit.cn/list_14.png'}
+        ],
+        //首页banner图和内页顶部头图
+        bannerList: [
+            {img: 'https://image.bygit.cn/banner-1.png'},
+            {img: 'https://image.bygit.cn/banner-2.png'},
+            {img: 'https://image.bygit.cn/banner-3.png'},
+            {img: 'https://image.bygit.cn/banner-4.png'}
+        ],
 ```
 
