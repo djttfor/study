@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byteblogs.plumemo.posts.dao.PostsCommentsDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.byteblogs.plumemo.posts.domain.po.PostsComments">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="author_id" property="authorId"/>
+        <result column="content" property="content"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="status" property="status"/>
+        <result column="posts_id" property="postsId"/>
+        <result column="tree_path" property="treePath"/>
+    </resultMap>
+    <insert id="saveReplyComments">
+        insert into plumemo_posts_comments(id,author_id,reply_author_id,content,parent_id,status,posts_id,create_time)
+        values(#{id},#{authorId},#{replyAuthorId},#{content},#{parentId},#{status},#{postsId},#{createTime})
+    </insert>
+
+    <select id="selectPostsCommentsByPostsIdList" resultType="com.byteblogs.plumemo.posts.domain.vo.PostsCommentsVO">
+        SELECT
+        postsComments.id,
+        postsComments.content,
+        postsComments.create_time createTime,
+        authUser.name authorName,
+        authUser.avatar authorAvatar,
+        parentAuthUser.name parentUserName
+        FROM
+        plumemo_posts_comments postsComments
+        LEFT JOIN plumemo_auth_user authUser ON postsComments.author_id = authUser.id
+        LEFT JOIN plumemo_posts_comments parentPostsComments ON postsComments.parent_id = parentPostsComments.id
+        LEFT JOIN plumemo_auth_user parentAuthUser ON parentPostsComments.author_id = parentAuthUser.id
+        <where>
+            postsComments.posts_id = #{postsId}
+        </where>
+
+        ORDER BY postsComments.create_time DESC
+    </select>
+
+    <select id="selectPostsCommentsList" resultType="com.byteblogs.plumemo.posts.domain.vo.PostsCommentsVO">
+        SELECT
+        postsComments.id,
+        postsComments.content,
+        authUser.name authorName ,
+        authUser.avatar authorAvatar,
+        parentAuthUser.name parentUserName,
+        posts.title
+        FROM
+        plumemo_posts_comments postsComments
+        LEFT JOIN plumemo_auth_user authUser ON postsComments.author_id = authUser.id
+        LEFT JOIN plumemo_posts_comments parentPostsComments ON postsComments.parent_id = parentPostsComments.id
+        LEFT JOIN plumemo_auth_user parentAuthUser ON parentPostsComments.author_id = parentAuthUser.id
+        LEFT JOIN plumemo_posts posts ON posts.id = postsComments.posts_id
+        <where>
+            <if test="postsComments.keywords != null and postsComments.keywords != ''">
+                ( postsComments.content LIKE #{postsComments.keywords} OR posts.title LIKE #{postsComments.keywords} )
+            </if>
+            <if test="postsComments.id != null">
+                and postsComments.id=#{postsComments.id}
+            </if>
+        </where>
+        ORDER BY postsComments.create_time DESC
+    </select>
+
+    <select id="selectMyPostsCommentsList" resultType="com.byteblogs.plumemo.posts.domain.po.MyPostsComments">
+        select
+               pc.id,
+               pc.author_id,
+               pc.reply_author_id,
+               pc.content,
+               pc.`status`,
+               pc.create_time,
+               au.name authorName,
+               au.avatar authorAvatar
+        from
+            plumemo_posts_comments pc left JOIN plumemo_auth_user au on pc.author_id = au.id
+        where posts_id = #{postsId} and parent_id = #{parentId}
+    </select>
+    <select id="selectReplyMyPostsCommentsList" resultType="com.byteblogs.plumemo.posts.domain.po.MyPostsComments">
+        select
+            pc.id,
+            pc.author_id,
+            pc.reply_author_id,
+            pc.content,
+            pc.`status`,
+            pc.create_time,
+            au.name authorName,
+            au2.name replyAuthorName,
+            au.avatar authorAvatar
+        from
+                plumemo_posts_comments pc
+                left JOIN plumemo_auth_user au on pc.author_id = au.id
+                left JOIN plumemo_auth_user au2 on pc.reply_author_id = au2.id
+        where posts_id = #{postsId} and parent_id = #{parentId}
+
+    </select>
+</mapper>
